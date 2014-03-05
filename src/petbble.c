@@ -1,0 +1,36 @@
+#include "pebble.h"
+
+// TODO EL FRAME PRINCIPAL SE CREA EN ESTE ARCHIVO
+#include "menu_principal.c"
+
+
+static void init(void){
+    
+    window = window_create();
+    window_set_click_config_provider(window, click_config_provider);
+    window_set_window_handlers(window, (WindowHandlers) {
+        .load = window_load,
+        .unload = window_unload,
+    });
+    
+    window_stack_push(window, true /* Animated */);
+    
+    
+}
+
+
+
+static void deinit(void) {
+    
+    window_destroy(window);
+    
+}
+
+
+int main(void) {
+    init();
+    app_event_loop();
+    deinit();
+    
+    return 0;
+}
