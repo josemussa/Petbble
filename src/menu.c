@@ -2,8 +2,11 @@
 
 
 #define ITEM_MENU_DEFAULT 0
+#define EGG_DEFAULT -1
+#define EGG_STATE_KEY 0
 
 static int item_menu = ITEM_MENU_DEFAULT;
+static int egg_state = EGG_DEFAULT;
 
 static Window *window;
 
@@ -29,10 +32,9 @@ static GBitmap *call;
 
 static BitmapLayer *egg_layer;
 
-static GBitmap *egg1;
+static GBitmap *egg[4];
 
 static void clear_buttons(){
-    
     bitmap_layer_set_background_color(pizza_layer, GColorWhite);
     bitmap_layer_set_background_color(bulb_layer, GColorWhite);
     bitmap_layer_set_background_color(park_layer, GColorWhite);
@@ -40,17 +42,11 @@ static void clear_buttons(){
     bitmap_layer_set_background_color(bath_layer, GColorWhite);
     bitmap_layer_set_background_color(health_layer, GColorWhite);
     bitmap_layer_set_background_color(discipline_layer, GColorWhite);
-    bitmap_layer_set_background_color(call_layer, GColorWhite);
-    
+    bitmap_layer_set_background_color(call_layer, GColorWhite);    
 }
 
-
-
 static void update_text() {
-    
-    
     switch (item_menu) {
-            
         case 0:
             //PIZZA
             clear_buttons();
@@ -115,7 +111,18 @@ static void decrement_click_handler(ClickRecognizerRef recognizer, void *context
     update_text();
 }
 
-static void select_menu(){}
+static void select_menu() {
+    switch (item_menu) {
+        case 0:
+            if (egg_state < 3) {
+              egg_state++;
+            }
+            bitmap_layer_set_bitmap(egg_layer, egg[egg_state]);
+            break;
+        default:
+            break;
+    }
+}
 
 static const VibePattern custom_pattern = {
     .durations = (uint32_t []) {100},
@@ -125,7 +132,6 @@ static const VibePattern custom_pattern = {
 static void select_long_click_handler(ClickRecognizerRef recognizer, void *context) {
     vibes_enqueue_custom_pattern(custom_pattern);
 }
-
 
 static void click_config_provider(void *context) {
     const uint16_t repeat_interval_ms = 200;
@@ -147,11 +153,10 @@ static void generateMenu(){
     discipline = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_DISCIPLINE);
     call = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_CALL);
     
-    egg1 = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_EGG1);
-
-    
-
-    
+    egg[0] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_EGG1);
+    egg[1] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_EGG2);
+    egg[2] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_EGG3);
+    egg[3] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_EGG4);    
 }
 
 static void generateIcons(){
@@ -204,26 +209,23 @@ static void generateIcons(){
     
     // CREATE EGG
     egg_layer = bitmap_layer_create(bounds);
-    bitmap_layer_set_bitmap(egg_layer, egg1);
+    bitmap_layer_set_bitmap(egg_layer, egg[egg_state]);
     bitmap_layer_set_alignment(egg_layer, GAlignCenter);
     layer_add_child(window_layer, bitmap_layer_get_layer(egg_layer));
     
     update_text();
     select_menu();
-    
-
 }
 
 static void window_load(Window *me){
-    
-    generateIcons();
-    
-    
+    egg_state = EGG_DEFAULT;
+    if (persist_exists(EGG_STATE_KEY)) {
+        egg_state = persist_read_int(EGG_STATE_KEY);
+    }
+    generateIcons();   
 }
 
-static void destroyIcons(){
-
-    
+static void destroyIcons(){    
     gbitmap_destroy(bulb);
     gbitmap_destroy(pizza);
     gbitmap_destroy(park);
@@ -241,17 +243,15 @@ static void destroyIcons(){
     bitmap_layer_destroy(discipline_layer);
     bitmap_layer_destroy(call_layer);
     
-    gbitmap_destroy(egg1);
+    gbitmap_destroy(egg[0]);
+    gbitmap_destroy(egg[1]);
+    gbitmap_destroy(egg[2]);
+    gbitmap_destroy(egg[3]);
     bitmap_layer_destroy(egg_layer);
 
 }
 
-
 static void window_unload(Window *window) {
-    
     destroyIcons();
-
+    persist_write_int(EGG_STATE_KEY, egg_state);
 }
-
-
-
