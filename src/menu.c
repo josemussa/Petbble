@@ -136,7 +136,7 @@ static void click_config_provider(void *context) {
     window_long_click_subscribe(BUTTON_ID_SELECT, 4000, select_long_click_handler, NULL);
 }
 
-static void generoMenu(){
+static void generateMenu(){
     
     pizza = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_PIZZA);
     bulb = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BULB);
@@ -154,13 +154,13 @@ static void generoMenu(){
     
 }
 
-static void generoIconos(){
+static void generateIcons(){
     
     Layer *window_layer = window_get_root_layer(window);
     GRect bounds = layer_get_frame(window_layer);
 
     // This needs to be deinited on app exit which is when the event loop ends
-    generoMenu();
+    generateMenu();
     
     // PIZZA
     pizza_layer = bitmap_layer_create(GRect(8,2,20, 20));
@@ -202,7 +202,7 @@ static void generoIconos(){
     bitmap_layer_set_bitmap(call_layer, call);
     layer_add_child(window_layer, bitmap_layer_get_layer(call_layer));
     
-    // CREO HUEVO
+    // CREATE EGG
     egg_layer = bitmap_layer_create(bounds);
     bitmap_layer_set_bitmap(egg_layer, egg1);
     bitmap_layer_set_alignment(egg_layer, GAlignCenter);
@@ -216,12 +216,12 @@ static void generoIconos(){
 
 static void window_load(Window *me){
     
-    generoIconos();
+    generateIcons();
     
     
 }
 
-static void destruyoIconos(){
+static void destroyIcons(){
 
     
     gbitmap_destroy(bulb);
@@ -249,7 +249,7 @@ static void destruyoIconos(){
 
 static void window_unload(Window *window) {
     
-    destruyoIconos();
+    destroyIcons();
 
 }
 
