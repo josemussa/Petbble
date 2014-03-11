@@ -1,8 +1,10 @@
 #include "pebble.h"
 
+// Change to 0 to take off debug mode.
+#define DEBUG_MODE 1
 
 #define ITEM_MENU_DEFAULT 0
-#define EGG_DEFAULT -1
+#define EGG_DEFAULT 0
 #define EGG_STATE_KEY 0
 
 static int item_menu = ITEM_MENU_DEFAULT;
@@ -27,8 +29,6 @@ static GBitmap *bath;
 static GBitmap *health;
 static GBitmap *discipline;
 static GBitmap *call;
-
-
 
 static BitmapLayer *egg_layer;
 
@@ -92,10 +92,26 @@ static void update_text() {
     }
 }
 
+static void update_egg() {
+    bitmap_layer_set_bitmap(egg_layer, egg[egg_state]);
+}
+
+static void redraw() {
+    update_text();
+    update_egg();
+}
+
+static void reset_stats() {
+    item_menu = 0;
+    egg_state = 0;
+    redraw();
+}
+
 static void increment_click_handler(ClickRecognizerRef recognizer, void *context) {
+    // Wrap-around menu
     if (item_menu >= 7) {
         item_menu=0;
-    }else{
+    } else {
         item_menu++;
     }
     
@@ -104,7 +120,7 @@ static void increment_click_handler(ClickRecognizerRef recognizer, void *context
 static void decrement_click_handler(ClickRecognizerRef recognizer, void *context) {
     if (item_menu <= 0) {
         item_menu = 7;
-    }else{
+    } else {
         item_menu--;
     }
     
@@ -114,10 +130,11 @@ static void decrement_click_handler(ClickRecognizerRef recognizer, void *context
 static void select_menu() {
     switch (item_menu) {
         case 0:
+            // Pizza
             if (egg_state < 3) {
               egg_state++;
             }
-            bitmap_layer_set_bitmap(egg_layer, egg[egg_state]);
+            update_egg();
             break;
         default:
             break;
@@ -131,6 +148,10 @@ static const VibePattern custom_pattern = {
 
 static void select_long_click_handler(ClickRecognizerRef recognizer, void *context) {
     vibes_enqueue_custom_pattern(custom_pattern);
+    // Long-press to reset app (start new petbble from scratch.)
+    if (DEBUG_MODE) {
+        reset_stats();
+    }
 }
 
 static void click_config_provider(void *context) {
@@ -213,8 +234,7 @@ static void generateIcons(){
     bitmap_layer_set_alignment(egg_layer, GAlignCenter);
     layer_add_child(window_layer, bitmap_layer_get_layer(egg_layer));
     
-    update_text();
-    select_menu();
+    redraw();
 }
 
 static void window_load(Window *me){

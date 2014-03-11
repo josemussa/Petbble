@@ -13,14 +13,12 @@ static void init(void){
     });
     
     window_stack_push(window, true /* Animated */);
-    
-    
 }
 
 
 
 static void deinit(void) {
-    
+
     window_destroy(window);
     
 }
