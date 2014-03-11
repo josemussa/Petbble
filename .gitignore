@@ -1,4 +1,4 @@
-
 # Ignore build generated files
 build
 .DS_Store
+src/.lock-waf_darwin_build
