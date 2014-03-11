@@ -1,7 +1,6 @@
 #include "pebble.h"
 
-// TODO EL FRAME PRINCIPAL SE CREA EN ESTE ARCHIVO
-#include "menu_principal.c"
+#include "menu.c"
 
 
 static void init(void){
@@ -14,14 +13,12 @@ static void init(void){
     });
     
     window_stack_push(window, true /* Animated */);
-    
-    
 }
 
 
 
 static void deinit(void) {
-    
+
     window_destroy(window);
     
 }

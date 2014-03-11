@@ -1,9 +1,14 @@
 #include "pebble.h"
 
+// Change to 0 to take off debug mode.
+#define DEBUG_MODE 1
 
 #define ITEM_MENU_DEFAULT 0
+#define EGG_DEFAULT 0
+#define EGG_STATE_KEY 0
 
 static int item_menu = ITEM_MENU_DEFAULT;
+static int egg_state = EGG_DEFAULT;
 
 static Window *window;
 
@@ -25,14 +30,11 @@ static GBitmap *health;
 static GBitmap *discipline;
 static GBitmap *call;
 
-
-
 static BitmapLayer *egg_layer;
 
-static GBitmap *egg1;
+static GBitmap *egg[4];
 
 static void clear_buttons(){
-    
     bitmap_layer_set_background_color(pizza_layer, GColorWhite);
     bitmap_layer_set_background_color(bulb_layer, GColorWhite);
     bitmap_layer_set_background_color(park_layer, GColorWhite);
@@ -40,17 +42,11 @@ static void clear_buttons(){
     bitmap_layer_set_background_color(bath_layer, GColorWhite);
     bitmap_layer_set_background_color(health_layer, GColorWhite);
     bitmap_layer_set_background_color(discipline_layer, GColorWhite);
-    bitmap_layer_set_background_color(call_layer, GColorWhite);
-    
+    bitmap_layer_set_background_color(call_layer, GColorWhite);    
 }
 
-
-
 static void update_text() {
-    
-    
     switch (item_menu) {
-            
         case 0:
             //PIZZA
             clear_buttons();
@@ -96,10 +92,26 @@ static void update_text() {
     }
 }
 
+static void update_egg() {
+    bitmap_layer_set_bitmap(egg_layer, egg[egg_state]);
+}
+
+static void redraw() {
+    update_text();
+    update_egg();
+}
+
+static void reset_stats() {
+    item_menu = 0;
+    egg_state = 0;
+    redraw();
+}
+
 static void increment_click_handler(ClickRecognizerRef recognizer, void *context) {
+    // Wrap-around menu
     if (item_menu >= 7) {
         item_menu=0;
-    }else{
+    } else {
         item_menu++;
     }
     
@@ -108,14 +120,26 @@ static void increment_click_handler(ClickRecognizerRef recognizer, void *context
 static void decrement_click_handler(ClickRecognizerRef recognizer, void *context) {
     if (item_menu <= 0) {
         item_menu = 7;
-    }else{
+    } else {
         item_menu--;
     }
     
     update_text();
 }
 
-static void select_menu(){}
+static void select_menu() {
+    switch (item_menu) {
+        case 0:
+            // Pizza
+            if (egg_state < 3) {
+              egg_state++;
+            }
+            update_egg();
+            break;
+        default:
+            break;
+    }
+}
 
 static const VibePattern custom_pattern = {
     .durations = (uint32_t []) {100},
@@ -124,8 +148,11 @@ static const VibePattern custom_pattern = {
 
 static void select_long_click_handler(ClickRecognizerRef recognizer, void *context) {
     vibes_enqueue_custom_pattern(custom_pattern);
+    // Long-press to reset app (start new petbble from scratch.)
+    if (DEBUG_MODE) {
+        reset_stats();
+    }
 }
-
 
 static void click_config_provider(void *context) {
     const uint16_t repeat_interval_ms = 200;
@@ -136,7 +163,7 @@ static void click_config_provider(void *context) {
     window_long_click_subscribe(BUTTON_ID_SELECT, 4000, select_long_click_handler, NULL);
 }
 
-static void generoMenu(){
+static void generateMenu(){
     
     pizza = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_PIZZA);
     bulb = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BULB);
@@ -147,20 +174,19 @@ static void generoMenu(){
     discipline = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_DISCIPLINE);
     call = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_CALL);
     
-    egg1 = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_EGG1);
-
-    
-
-    
+    egg[0] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_EGG1);
+    egg[1] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_EGG2);
+    egg[2] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_EGG3);
+    egg[3] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_EGG4);    
 }
 
-static void generoIconos(){
+static void generateIcons(){
     
     Layer *window_layer = window_get_root_layer(window);
     GRect bounds = layer_get_frame(window_layer);
 
     // This needs to be deinited on app exit which is when the event loop ends
-    generoMenu();
+    generateMenu();
     
     // PIZZA
     pizza_layer = bitmap_layer_create(GRect(8,2,20, 20));
@@ -202,28 +228,24 @@ static void generoIconos(){
     bitmap_layer_set_bitmap(call_layer, call);
     layer_add_child(window_layer, bitmap_layer_get_layer(call_layer));
     
-    // CREO HUEVO
+    // CREATE EGG
     egg_layer = bitmap_layer_create(bounds);
-    bitmap_layer_set_bitmap(egg_layer, egg1);
+    bitmap_layer_set_bitmap(egg_layer, egg[egg_state]);
     bitmap_layer_set_alignment(egg_layer, GAlignCenter);
     layer_add_child(window_layer, bitmap_layer_get_layer(egg_layer));
     
-    update_text();
-    select_menu();
-    
-
+    redraw();
 }
 
 static void window_load(Window *me){
-    
-    generoIconos();
-    
-    
+    egg_state = EGG_DEFAULT;
+    if (persist_exists(EGG_STATE_KEY)) {
+        egg_state = persist_read_int(EGG_STATE_KEY);
+    }
+    generateIcons();   
 }
 
-static void destruyoIconos(){
-
-    
+static void destroyIcons(){    
     gbitmap_destroy(bulb);
     gbitmap_destroy(pizza);
     gbitmap_destroy(park);
@@ -241,17 +263,15 @@ static void destruyoIconos(){
     bitmap_layer_destroy(discipline_layer);
     bitmap_layer_destroy(call_layer);
     
-    gbitmap_destroy(egg1);
+    gbitmap_destroy(egg[0]);
+    gbitmap_destroy(egg[1]);
+    gbitmap_destroy(egg[2]);
+    gbitmap_destroy(egg[3]);
     bitmap_layer_destroy(egg_layer);
 
 }
 
-
 static void window_unload(Window *window) {
-    
-    destruyoIconos();
-
+    destroyIcons();
+    persist_write_int(EGG_STATE_KEY, egg_state);
 }
-
-
-
