@@ -1,7 +1,6 @@
 #include "pebble.h"
 
-// TODO EL FRAME PRINCIPAL SE CREA EN ESTE ARCHIVO
-#include "menu_principal.c"
+#include "menu.c"
 
 
 static void init(void){
