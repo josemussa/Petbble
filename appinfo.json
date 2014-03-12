@@ -70,6 +70,66 @@
         "type": "png",
         "name": "IMAGE_EGG4",
         "file": "images/pet/egg/4.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_BABITCHI1",
+        "file": "images/pet/babitchi/1.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_BABITCHI2",
+        "file": "images/pet/babitchi/2.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_BABITCHI3",
+        "file": "images/pet/babitchi/3.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_BABITCHI4",
+        "file": "images/pet/babitchi/4.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_BABITCHI5",
+        "file": "images/pet/babitchi/5.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_BABITCHI6",
+        "file": "images/pet/babitchi/6.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_BABITCHI7",
+        "file": "images/pet/babitchi/7.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_BABITCHI8",
+        "file": "images/pet/babitchi/8.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_BABITCHI9",
+        "file": "images/pet/babitchi/9.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_BABITCHI10",
+        "file": "images/pet/babitchi/10.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_RETURN1",
+        "file": "images/pet/return/1.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_RETURN2",
+        "file": "images/pet/return/2.png"
       }
     ]
   }

@@ -1,14 +1,12 @@
 #include "pebble.h"
+#include "pet.h"
 
 // Change to 0 to take off debug mode.
 #define DEBUG_MODE 1
 
 #define ITEM_MENU_DEFAULT 0
-#define EGG_DEFAULT 0
-#define EGG_STATE_KEY 0
 
 static int item_menu = ITEM_MENU_DEFAULT;
-static int egg_state = EGG_DEFAULT;
 
 static Window *window;
 
@@ -30,9 +28,11 @@ static GBitmap *health;
 static GBitmap *discipline;
 static GBitmap *call;
 
-static BitmapLayer *egg_layer;
+static BitmapLayer *pet_layer;
 
-static GBitmap *egg[4];
+static GBitmap *pet_sprites[16];
+
+static Pet p;
 
 static void clear_buttons(){
     bitmap_layer_set_background_color(pizza_layer, GColorWhite);
@@ -92,19 +92,13 @@ static void update_text() {
     }
 }
 
-static void update_egg() {
-    bitmap_layer_set_bitmap(egg_layer, egg[egg_state]);
+static void update_pet() {
+    bitmap_layer_set_bitmap(pet_layer, pet_sprites[p.current_stage]);
 }
 
 static void redraw() {
     update_text();
-    update_egg();
-}
-
-static void reset_stats() {
-    item_menu = 0;
-    egg_state = 0;
-    redraw();
+    update_pet();
 }
 
 static void increment_click_handler(ClickRecognizerRef recognizer, void *context) {
@@ -131,10 +125,8 @@ static void select_menu() {
     switch (item_menu) {
         case 0:
             // Pizza
-            if (egg_state < 3) {
-              egg_state++;
-            }
-            update_egg();
+            pet_feed(&p);
+            redraw();
             break;
         default:
             break;
@@ -150,7 +142,7 @@ static void select_long_click_handler(ClickRecognizerRef recognizer, void *conte
     vibes_enqueue_custom_pattern(custom_pattern);
     // Long-press to reset app (start new petbble from scratch.)
     if (DEBUG_MODE) {
-        reset_stats();
+        pet_new(&p);
     }
 }
 
@@ -174,10 +166,22 @@ static void generateMenu(){
     discipline = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_DISCIPLINE);
     call = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_CALL);
     
-    egg[0] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_EGG1);
-    egg[1] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_EGG2);
-    egg[2] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_EGG3);
-    egg[3] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_EGG4);    
+    pet_sprites[0] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_EGG1);
+    pet_sprites[1] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_EGG2);
+    pet_sprites[2] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_EGG3);
+    pet_sprites[3] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_EGG4);
+    pet_sprites[4] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BABITCHI1);
+    pet_sprites[5] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BABITCHI2);
+    pet_sprites[6] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BABITCHI3);
+    pet_sprites[7] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BABITCHI4);
+    pet_sprites[8] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BABITCHI5);
+    pet_sprites[9] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BABITCHI6);
+    pet_sprites[10] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BABITCHI7);
+    pet_sprites[11] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BABITCHI8);
+    pet_sprites[12] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BABITCHI9);
+    pet_sprites[13] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BABITCHI10);
+    pet_sprites[14] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_RETURN1);
+    pet_sprites[15] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_RETURN2);
 }
 
 static void generateIcons(){
@@ -228,21 +232,17 @@ static void generateIcons(){
     bitmap_layer_set_bitmap(call_layer, call);
     layer_add_child(window_layer, bitmap_layer_get_layer(call_layer));
     
-    // CREATE EGG
-    egg_layer = bitmap_layer_create(bounds);
-    bitmap_layer_set_bitmap(egg_layer, egg[egg_state]);
-    bitmap_layer_set_alignment(egg_layer, GAlignCenter);
-    layer_add_child(window_layer, bitmap_layer_get_layer(egg_layer));
+    // CREATE PET
+    pet_layer = bitmap_layer_create(bounds);
+    bitmap_layer_set_alignment(pet_layer, GAlignCenter);
+    layer_add_child(window_layer, bitmap_layer_get_layer(pet_layer));
     
     redraw();
 }
 
 static void window_load(Window *me){
-    egg_state = EGG_DEFAULT;
-    if (persist_exists(EGG_STATE_KEY)) {
-        egg_state = persist_read_int(EGG_STATE_KEY);
-    }
-    generateIcons();   
+    pet_load_state(&p);
+    generateIcons();
 }
 
 static void destroyIcons(){    
@@ -263,15 +263,14 @@ static void destroyIcons(){
     bitmap_layer_destroy(discipline_layer);
     bitmap_layer_destroy(call_layer);
     
-    gbitmap_destroy(egg[0]);
-    gbitmap_destroy(egg[1]);
-    gbitmap_destroy(egg[2]);
-    gbitmap_destroy(egg[3]);
-    bitmap_layer_destroy(egg_layer);
+    for (int i = 0; i < 16; i++) {
+        gbitmap_destroy(pet_sprites[i]);
+    }
 
+    bitmap_layer_destroy(pet_layer);
 }
 
 static void window_unload(Window *window) {
+    pet_save_state(&p);
     destroyIcons();
-    persist_write_int(EGG_STATE_KEY, egg_state);
 }
