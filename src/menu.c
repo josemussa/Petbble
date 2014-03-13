@@ -8,7 +8,9 @@
 #define ONE_SECOND 1000
 #define TIMER_STEP_MS (ONE_SECOND * 1)
 
-static bool miau;
+static int animationCounter = 0;
+
+static int pet_level = 2;
 
 static int item_menu = ITEM_MENU_DEFAULT;
 
@@ -201,7 +203,6 @@ static void generatePet(){
 static void generateIcons(){
     
     Layer *window_layer = window_get_root_layer(window);
-    GRect bounds = layer_get_frame(window_layer);
 
     // This needs to be deinited on app exit which is when the event loop ends
     generateMenu();
@@ -262,18 +263,43 @@ static void showPet(){
     layer_add_child(window_layer, bitmap_layer_get_layer(pet_layer));
     
     tick_timer_service_subscribe(SECOND_UNIT, handle_tick);
+    
+}
+
+static void animationPet(){
+
+    
+           bitmap_layer_set_bitmap(pet_layer, pet_sprites[animationCounter]);
+
+
+    
 }
 
 static void handle_tick(struct tm *tick_time, TimeUnits units_changed)
 {
 
-    if(!miau){
-        bitmap_layer_set_bitmap(pet_layer, pet_sprites[0]);
-        miau = true;
-    }else{
-    bitmap_layer_set_bitmap(pet_layer, pet_sprites[1]);
-        miau = false;
+   ++animationCounter;
+    switch (pet_level) {
+        case 0:
+            // EGG
+            if (animationCounter == 2){
+                animationCounter = 0;
+            }
+            animationPet();
+            break;
+        case 2:
+            if (animationCounter == 13){
+                animationCounter = 4;
+            }
+            if (animationCounter < 4){
+                animationCounter = 4;
+            }
+            animationPet();
+            break;
+        default:
+            break;
     }
+    
     
 }
 
