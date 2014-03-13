@@ -4,6 +4,7 @@
 
 
 static void init(void){
+    srand(time(NULL));
     
     window = window_create();
     window_set_click_config_provider(window, click_config_provider);

@@ -12,6 +12,8 @@
 #define ADULT_STAGE_AVERAGE 8
 #define ADULT_STAGE_UNHEALTHY 9
 
+#define MAX_STAT 5
+
 int pet_load_state(Pet *p) {
     for (int i = 0; i < NUM_PET_FIELDS; i++) {
         if (persist_exists(i)) {
@@ -42,7 +44,24 @@ void pet_new(Pet *p) {
 }
 
 void pet_feed(Pet *p) {
-	if (p->fields[CURRENT_STAGE_KEY] < TODDLER_STAGE) {
-		p->fields[CURRENT_STAGE_KEY] = p->fields[CURRENT_STAGE_KEY] + 1;
-	}
+    if (p->fields[HUNGER_KEY] < MAX_STAT) {
+        p->fields[HUNGER_KEY] = p->fields[HUNGER_KEY] + 1;
+    }
+}
+
+// Periodically called to see if conditions are met for various statuses
+// @return 1 if any changes were made; 0 otherwise.
+int pet_check_status(Pet *p) {
+    int modify = 0;
+    // Hunger will decrease once per 5 timer ticks.  Should probably come up with a better solution without magic numbers later.
+    if (rand() % 5 == 0) {
+        p->fields[HUNGER_KEY] = p->fields[HUNGER_KEY] - 1;
+        modify = 1;
+    }
+
+    if (p->fields[CURRENT_STAGE_KEY] < TODDLER_STAGE && p->fields[HUNGER_KEY] == MAX_STAT) {
+        p->fields[CURRENT_STAGE_KEY] = p->fields[CURRENT_STAGE_KEY] + 1;
+        modify = 1;
+    }
+    return modify;
 }

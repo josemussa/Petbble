@@ -5,6 +5,8 @@
 #define DEBUG_MODE 1
 
 #define ITEM_MENU_DEFAULT 0
+#define ONE_SECOND 1000
+#define TIMER_STEP_MS (ONE_SECOND * 1)
 
 static int item_menu = ITEM_MENU_DEFAULT;
 
@@ -33,6 +35,8 @@ static BitmapLayer *pet_layer;
 static GBitmap *pet_sprites[16];
 
 static Pet p;
+
+static AppTimer *timer;
 
 static void clear_buttons(){
     bitmap_layer_set_background_color(pizza_layer, GColorWhite);
@@ -241,11 +245,19 @@ static void generateIcons(){
     redraw();
 }
 
+static void timer_callback(void *data) {
+    if (pet_check_status(&p)) {
+        redraw();
+    }
+    timer = app_timer_register(TIMER_STEP_MS, timer_callback, NULL);
+}
+
 static void window_load(Window *me){
     if (!pet_load_state(&p)) {
         pet_new(&p);
     }
     generateIcons();
+    timer = app_timer_register(TIMER_STEP_MS, timer_callback, NULL);
 }
 
 static void destroyIcons(){    

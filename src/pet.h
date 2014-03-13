@@ -21,3 +21,4 @@ int pet_load_state(Pet *p);
 void pet_save_state(Pet *p);
 void pet_new(Pet *p);
 void pet_feed(Pet *p);
+int pet_check_status(Pet *p);
