@@ -8,6 +8,8 @@
 #define ONE_SECOND 1000
 #define TIMER_STEP_MS (ONE_SECOND * 1)
 
+static bool miau;
+
 static int item_menu = ITEM_MENU_DEFAULT;
 
 static Window *window;
@@ -30,6 +32,8 @@ static GBitmap *health;
 static GBitmap *discipline;
 static GBitmap *call;
 
+static PropertyAnimation *petAnimation;
+
 static BitmapLayer *pet_layer;
 
 static GBitmap *pet_sprites[16];
@@ -37,6 +41,8 @@ static GBitmap *pet_sprites[16];
 static Pet p;
 
 static AppTimer *timer;
+
+static void handle_tick(struct tm *tick_time, TimeUnits units_changed);
 
 static void clear_buttons(){
     bitmap_layer_set_background_color(pizza_layer, GColorWhite);
@@ -96,13 +102,9 @@ static void update_text() {
     }
 }
 
-static void update_pet() {
-    bitmap_layer_set_bitmap(pet_layer, pet_sprites[p.fields[CURRENT_STAGE_KEY]]);
-}
 
 static void redraw() {
     update_text();
-    update_pet();
 }
 
 static void increment_click_handler(ClickRecognizerRef recognizer, void *context) {
@@ -171,6 +173,11 @@ static void generateMenu(){
     discipline = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_DISCIPLINE);
     call = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_CALL);
     
+
+}
+
+static void generatePet(){
+
     pet_sprites[0] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_EGG1);
     pet_sprites[1] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_EGG2);
     pet_sprites[2] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_EGG3);
@@ -187,7 +194,9 @@ static void generateMenu(){
     pet_sprites[13] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BABITCHI10);
     pet_sprites[14] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_RETURN1);
     pet_sprites[15] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_RETURN2);
+
 }
+
 
 static void generateIcons(){
     
@@ -237,12 +246,35 @@ static void generateIcons(){
     bitmap_layer_set_bitmap(call_layer, call);
     layer_add_child(window_layer, bitmap_layer_get_layer(call_layer));
     
+}
+
+static void showPet(){
+    
+    Layer *window_layer = window_get_root_layer(window);
+    GRect bounds = layer_get_frame(window_layer);
+    
+    // This needs to be deinited on app exit which is when the event loop ends
+    generatePet();
+    
     // CREATE PET
     pet_layer = bitmap_layer_create(bounds);
     bitmap_layer_set_alignment(pet_layer, GAlignCenter);
     layer_add_child(window_layer, bitmap_layer_get_layer(pet_layer));
     
-    redraw();
+    tick_timer_service_subscribe(SECOND_UNIT, handle_tick);
+}
+
+static void handle_tick(struct tm *tick_time, TimeUnits units_changed)
+{
+
+    if(!miau){
+        bitmap_layer_set_bitmap(pet_layer, pet_sprites[0]);
+        miau = true;
+    }else{
+    bitmap_layer_set_bitmap(pet_layer, pet_sprites[1]);
+        miau = false;
+    }
+    
 }
 
 static void timer_callback(void *data) {
@@ -257,6 +289,7 @@ static void window_load(Window *me){
         pet_new(&p);
     }
     generateIcons();
+    showPet();
     timer = app_timer_register(TIMER_STEP_MS, timer_callback, NULL);
 }
 
@@ -278,11 +311,14 @@ static void destroyIcons(){
     bitmap_layer_destroy(discipline_layer);
     bitmap_layer_destroy(call_layer);
     
+    property_animation_destroy(petAnimation);
+    
     for (int i = 0; i < 16; i++) {
         gbitmap_destroy(pet_sprites[i]);
     }
 
     bitmap_layer_destroy(pet_layer);
+    
 }
 
 static void window_unload(Window *window) {
