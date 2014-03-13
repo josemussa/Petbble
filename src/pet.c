@@ -12,68 +12,37 @@
 #define ADULT_STAGE_AVERAGE 8
 #define ADULT_STAGE_UNHEALTHY 9
 
-#define CURRENT_STAGE_KEY 0
-#define HAPPINESS_KEY 1
-#define HUNGER_KEY 2
-#define DISCIPLINE_KEY 3
-#define TOTAL_AGE_KEY 4
-#define CURRENT_STAGE_AGE_KEY 5
-
-void pet_load_state(Pet *p) {
-	p->current_stage = 0;
-    if (persist_exists(CURRENT_STAGE_KEY)) {
-        p->current_stage = persist_read_int(CURRENT_STAGE_KEY);
+int pet_load_state(Pet *p) {
+    for (int i = 0; i < NUM_PET_FIELDS; i++) {
+        if (persist_exists(i)) {
+            p->fields[i] = persist_read_int(i);
+        } else {
+            return 0;
+        }
     }
-    // TODO
-    // variables defaulted to -1 are features not yet implemented.
-    p->happiness_level = -1;
-    if (persist_exists(HAPPINESS_KEY)) {
-        p->happiness_level = persist_read_int(HAPPINESS_KEY);
-    }
-    p->hunger_level = -1;
-    if (persist_exists(HUNGER_KEY)) {
-        p->hunger_level = persist_read_int(HUNGER_KEY);
-    }
-    p->discipline_level = -1;
-    if (persist_exists(DISCIPLINE_KEY)) {
-        p->discipline_level = persist_read_int(DISCIPLINE_KEY);
-    }
-    p->total_age = time(NULL);
-    if (persist_exists(TOTAL_AGE_KEY)) {
-        p->total_age = persist_read_int(TOTAL_AGE_KEY);
-    }
-    p->current_stage_age = -1;
-    if (persist_exists(CURRENT_STAGE_AGE_KEY)) {
-        p->current_stage_age = persist_read_int(CURRENT_STAGE_AGE_KEY);
-    }
+    return 1;
 }
 
 void pet_save_state(Pet *p) {
-    persist_write_int(CURRENT_STAGE_KEY, p->current_stage);
-    persist_write_int(HAPPINESS_KEY, p->happiness_level);
-    persist_write_int(HUNGER_KEY, p->hunger_level);
-    persist_write_int(DISCIPLINE_KEY, p->discipline_level);
-    persist_write_int(TOTAL_AGE_KEY, p->total_age);
-    persist_write_int(CURRENT_STAGE_AGE_KEY, p->current_stage_age);
+    for (int i = 0; i < NUM_PET_FIELDS; i++) {
+        persist_write_int(i, p->fields[i]);
+    }
 }
 
 void pet_new(Pet *p) {
-    p->current_stage = 0;
-    p->happiness_level = -1;
-    p->hunger_level = -1;
-    p->discipline_level = -1;
-    p->total_age = time(NULL);
-    p->current_stage_age = -1;
-    persist_delete(CURRENT_STAGE_KEY);
-    persist_delete(HAPPINESS_KEY);
-    persist_delete(HUNGER_KEY);
-    persist_delete(DISCIPLINE_KEY);
-    persist_delete(TOTAL_AGE_KEY);
-    persist_delete(CURRENT_STAGE_AGE_KEY);
+    p->fields[CURRENT_STAGE_KEY] = 0;
+    p->fields[HAPPINESS_KEY] = -1;
+    p->fields[HUNGER_KEY] = -1;
+    p->fields[DISCIPLINE_KEY] = -1;
+    p->fields[TOTAL_AGE_KEY] = time(NULL);
+    p->fields[CURRENT_STAGE_AGE_KEY] = time(NULL);
+    for (int i = 0; i < NUM_PET_FIELDS; i++) {
+        persist_delete(i);
+    }
 }
 
 void pet_feed(Pet *p) {
-	if (p->current_stage < TODDLER_STAGE) {
-		p->current_stage = p->current_stage + 1;
+	if (p->fields[CURRENT_STAGE_KEY] < TODDLER_STAGE) {
+		p->fields[CURRENT_STAGE_KEY] = p->fields[CURRENT_STAGE_KEY] + 1;
 	}
 }

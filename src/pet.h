@@ -1,15 +1,23 @@
+#ifndef PET_H
+#define PET_H
+
+#define NUM_PET_FIELDS 6
+
+// These serve double duty as keys for persistent storage, and indexes into the Pet struct array.
+#define CURRENT_STAGE_KEY 0
+#define HAPPINESS_KEY 1
+#define HUNGER_KEY 2
+#define DISCIPLINE_KEY 3
+#define TOTAL_AGE_KEY 4
+#define CURRENT_STAGE_AGE_KEY 5
+
 typedef struct {
-	int current_stage;
-	int happiness_level;
-	int hunger_level;
-	int discipline_level;
-	// Date in UNIX seconds of creation of pet
-	long total_age;
-	// Date in UNIX seconds in which pet evolved into current stage
-	long current_stage_age;
+    int fields[NUM_PET_FIELDS];
 } Pet;
 
-void pet_load_state(Pet *p);
+#endif
+
+int pet_load_state(Pet *p);
 void pet_save_state(Pet *p);
 void pet_new(Pet *p);
 void pet_feed(Pet *p);

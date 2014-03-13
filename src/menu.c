@@ -93,7 +93,7 @@ static void update_text() {
 }
 
 static void update_pet() {
-    bitmap_layer_set_bitmap(pet_layer, pet_sprites[p.current_stage]);
+    bitmap_layer_set_bitmap(pet_layer, pet_sprites[p.fields[CURRENT_STAGE_KEY]]);
 }
 
 static void redraw() {
@@ -143,6 +143,7 @@ static void select_long_click_handler(ClickRecognizerRef recognizer, void *conte
     // Long-press to reset app (start new petbble from scratch.)
     if (DEBUG_MODE) {
         pet_new(&p);
+        redraw();
     }
 }
 
@@ -241,7 +242,9 @@ static void generateIcons(){
 }
 
 static void window_load(Window *me){
-    pet_load_state(&p);
+    if (!pet_load_state(&p)) {
+        pet_new(&p);
+    }
     generateIcons();
 }
 
