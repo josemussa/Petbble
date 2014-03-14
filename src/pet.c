@@ -58,6 +58,24 @@ static int randRange(int low, int high) {
     return (rand() % (high - low) + low);
 }
 
+// Attempts to increase stat by 1.  If it is successful, returns 1.  Otherwise returns 0.
+static int increment_stat(Pet *p, int stat) {
+    if (stat < MAX_STAT) {
+        p->fields[stat] += 1;
+        return 1;
+    }
+    return 0;
+}
+
+// Attempts to decrease stat by 1.  If it is successful, returns 1.  Otherwise returns 0.
+static int decrement_stat(Pet *p, int stat) {
+    if (stat > 0) {
+        p->fields[stat] -= 1;
+        return 1;
+    }
+    return 0;
+}
+
 void pet_new(Pet *p) {
     p->fields[CURRENT_STAGE_KEY] = 0;
     p->fields[HEALTH_KEY] = 3;
@@ -77,23 +95,25 @@ void pet_new(Pet *p) {
 
 void pet_feed(Pet *p) {
     p->fields[WEIGHT_KEY] = p->fields[WEIGHT_KEY] + 1;
-    if (p->fields[HUNGER_KEY] < MAX_STAT) {
-        p->fields[HUNGER_KEY] = p->fields[HUNGER_KEY] + 1;
+    if (increment_stat(p, HUNGER_KEY)) {
+        return;
+    } else if (decrement_stat(p, HEALTH_KEY)) {
+        return;
     } else {
-        // If already full, decrease health by 1.
-        p->fields[HEALTH_KEY] = p->fields[HEALTH_KEY] - 1;
+        // Dies from over feeding? (0 health, full belly.)
+        pet_die(p);
     }
 }
 
 void pet_play(Pet *p) {
     // Can only play if positive energy, and not sick.
     if (p->fields[ENERGY_KEY] > 0 && !p->fields[SICK_KEY]) {
-        p->fields[ENERGY_KEY] -= 1;
-        p->fields[WEIGHT_KEY] -= 1;
-        p->fields[HAPPINESS_KEY] += 1;
-        p->fields[HEALTH_KEY] += 1;
-    } else if (p->fields[HEALTH_KEY] > 0) {
-        p->fields[HEALTH_KEY] -= 1;
+        decrement_stat(p, ENERGY_KEY);
+        decrement_stat(p, WEIGHT_KEY);
+        increment_stat(p, HAPPINESS_KEY);
+        increment_stat(p, HEALTH_KEY);
+    } else if (decrement_stat(p, HEALTH_KEY)) {
+        return;
     } else if (!p->fields[SICK_KEY]) {
         p->fields[SICK_KEY] = 1;
     } else {
@@ -106,29 +126,29 @@ void pet_heal(Pet *p) {
     if (p->fields[SICK_KEY]) {
         p->fields[SICK_KEY] = 0;
     } else {
-        p->fields[DISCIPLINE_KEY] -= 1;
+        decrement_stat(p, DISCIPLINE_KEY);
     }
 }
 
 static void update_stats(Pet *p, int i) {
     // Approximately every i mintes, stats decrease by 1.
     if (rand() % i == 0) {
-        p->fields[HEALTH_KEY] = p->fields[HEALTH_KEY] - 1;
+        decrement_stat(p, HEALTH_KEY);
     }
     if (rand() % i == 0) {
-        p->fields[HAPPINESS_KEY] = p->fields[HAPPINESS_KEY] - 1;
+        decrement_stat(p, HAPPINESS_KEY);
     }
     if (rand() % i == 0) {
-        p->fields[HUNGER_KEY] = p->fields[HUNGER_KEY] - 1;
+        decrement_stat(p, HUNGER_KEY);
     }
     if (rand() % i == 0) {
-        p->fields[DISCIPLINE_KEY] = p->fields[DISCIPLINE_KEY] - 1;
+        decrement_stat(p, DISCIPLINE_KEY);
     }
     if (rand() % i == 0) {
-        p->fields[WEIGHT_KEY] = p->fields[WEIGHT_KEY] - 1;
+        decrement_stat(p, WEIGHT_KEY);
     }
     if (rand() % i == 0) {
-        p->fields[ENERGY_KEY] = p->fields[ENERGY_KEY] - 1;
+        decrement_stat(p, ENERGY_KEY);
     }
     // Hungry and unhealthy leads to greater chance of getting sick.
     if (rand() % (5 * i * (p->fields[HEALTH_KEY] + p->fields[HUNGER_KEY]))) {
