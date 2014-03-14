@@ -14,6 +14,8 @@
 
 #define MAX_STAT 5
 
+
+
 int pet_load_state(Pet *p) {
     for (int i = 0; i < NUM_PET_FIELDS; i++) {
         if (persist_exists(i)) {
@@ -49,6 +51,8 @@ void pet_feed(Pet *p) {
     }
 }
 
+
+
 // Periodically called to see if conditions are met for various statuses
 // @return 1 if any changes were made; 0 otherwise.
 int pet_check_status(Pet *p) {
@@ -65,3 +69,5 @@ int pet_check_status(Pet *p) {
     }
     return modify;
 }
+
+

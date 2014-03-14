@@ -34,15 +34,16 @@ static GBitmap *health;
 static GBitmap *discipline;
 static GBitmap *call;
 
-static PropertyAnimation *petAnimation;
-
 static BitmapLayer *pet_layer;
 
 static GBitmap *pet_sprites[16];
+static GBitmap *lightoff;
 
 static Pet p;
 
 static AppTimer *timer;
+
+static bool animationPetPaused = false;
 
 static void handle_tick(struct tm *tick_time, TimeUnits units_changed);
 
@@ -129,12 +130,31 @@ static void decrement_click_handler(ClickRecognizerRef recognizer, void *context
     update_text();
 }
 
+static void lightsOff(){
+    
+    if(!animationPetPaused){
+    animationPetPaused = true;
+        
+    bitmap_layer_set_bitmap(pet_layer, lightoff);
+    //bitmap_layer_set_bitmap(pet_layer, pet_sprites[14]);
+    
+        
+    }else{
+    
+        animationPetPaused = false;
+        
+    }
+}
+
 static void select_menu() {
     switch (item_menu) {
         case 0:
             // Pizza
             pet_feed(&p);
             redraw();
+            break;
+        case 1:
+            lightsOff();
             break;
         default:
             break;
@@ -164,7 +184,7 @@ static void click_config_provider(void *context) {
     window_long_click_subscribe(BUTTON_ID_SELECT, 4000, select_long_click_handler, NULL);
 }
 
-static void generateMenu(){
+static void generateMiscImages(){
     
     pizza = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_PIZZA);
     bulb = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BULB);
@@ -174,7 +194,7 @@ static void generateMenu(){
     health = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_HEALTH);
     discipline = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_DISCIPLINE);
     call = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_CALL);
-    
+    lightoff = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_LIGHTSOFF);
 
 }
 
@@ -196,6 +216,7 @@ static void generatePet(){
     pet_sprites[13] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BABITCHI10);
     pet_sprites[14] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_RETURN1);
     pet_sprites[15] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_RETURN2);
+    
 
 }
 
@@ -205,7 +226,7 @@ static void generateIcons(){
     Layer *window_layer = window_get_root_layer(window);
 
     // This needs to be deinited on app exit which is when the event loop ends
-    generateMenu();
+    generateMiscImages();
     
     // PIZZA
     pizza_layer = bitmap_layer_create(GRect(8,2,20, 20));
@@ -268,8 +289,10 @@ static void showPet(){
 
 static void animationPet(){
 
+    if(!animationPetPaused){
     
            bitmap_layer_set_bitmap(pet_layer, pet_sprites[animationCounter]);
+    }
 
 
     
@@ -337,13 +360,14 @@ static void destroyIcons(){
     bitmap_layer_destroy(discipline_layer);
     bitmap_layer_destroy(call_layer);
     
-    property_animation_destroy(petAnimation);
-    
     for (int i = 0; i < 16; i++) {
         gbitmap_destroy(pet_sprites[i]);
     }
+    gbitmap_destroy(lightoff);
 
     bitmap_layer_destroy(pet_layer);
+    
+    
     
 }
 
