@@ -107,6 +107,11 @@ static void update_text() {
     }
 }
 
+static void animationPet(){
+    if(!animationPetPaused){   
+        bitmap_layer_set_bitmap(pet_layer, pet_sprites[animationCounter]);
+    }
+}
 
 static void redraw() {
     update_text();
@@ -157,6 +162,7 @@ static void lightsOff(){
 static void lightsOn() {
     text_layer_destroy(time_layer);
     animationPetPaused = false;
+    animationPet();
 }
 
 static void toggleLights() {
@@ -238,9 +244,7 @@ static void generatePet(){
     pet_sprites[14] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_RETURN1);
     pet_sprites[15] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_RETURN2);
     
-    
 }
-
 
 static void generateIcons(){
     
@@ -308,24 +312,9 @@ static void showPet(){
     
 }
 
-static void animationPet(){
-    
-    if(!animationPetPaused){
-        
-        bitmap_layer_set_bitmap(pet_layer, pet_sprites[animationCounter]);
-    }
-    
-    
-    
-}
-
 static void handle_tick(struct tm *tick_time, TimeUnits units_changed)
 {
-    ++animationCounter;
-    
-    
-    
-    
+    ++animationCounter; 
     
     switch (pet_level) {
         case 0:
