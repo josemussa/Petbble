@@ -57,7 +57,7 @@ static void clear_buttons(){
     bitmap_layer_set_background_color(bath_layer, GColorWhite);
     bitmap_layer_set_background_color(health_layer, GColorWhite);
     bitmap_layer_set_background_color(discipline_layer, GColorWhite);
-    bitmap_layer_set_background_color(call_layer, GColorWhite);    
+    bitmap_layer_set_background_color(call_layer, GColorWhite);
 }
 
 static void update_text() {
@@ -135,11 +135,11 @@ static void decrement_click_handler(ClickRecognizerRef recognizer, void *context
 static void lightsOff(){
     
     if(!animationPetPaused){
-    animationPetPaused = true;
+        animationPetPaused = true;
         
-    bitmap_layer_set_bitmap(pet_layer, lightoff);
+        bitmap_layer_set_bitmap(pet_layer, lightoff);
         
-    //bitmap_layer_set_bitmap(pet_layer, pet_sprites[14]);
+        //bitmap_layer_set_bitmap(pet_layer, pet_sprites[14]);
         
         
         time_layer = text_layer_create(GRect(29, 54, 144-40 /* width */, 168-54 /* height */));
@@ -157,7 +157,8 @@ static void lightsOff(){
         layer_add_child(window_get_root_layer(window), text_layer_get_layer(time_layer));
         
     }else{
-    
+        
+        text_layer_destroy(time_layer);
         animationPetPaused = false;
         
     }
@@ -212,11 +213,11 @@ static void generateMiscImages(){
     discipline = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_DISCIPLINE);
     call = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_CALL);
     lightoff = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_LIGHTSOFF);
-
+    
 }
 
 static void generatePet(){
-
+    
     pet_sprites[0] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_EGG1);
     pet_sprites[1] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_EGG2);
     pet_sprites[2] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_EGG3);
@@ -234,14 +235,14 @@ static void generatePet(){
     pet_sprites[14] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_RETURN1);
     pet_sprites[15] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_RETURN2);
     
-
+    
 }
 
 
 static void generateIcons(){
     
     Layer *window_layer = window_get_root_layer(window);
-
+    
     // This needs to be deinited on app exit which is when the event loop ends
     generateMiscImages();
     
@@ -305,29 +306,24 @@ static void showPet(){
 }
 
 static void animationPet(){
-
-    if(!animationPetPaused){
     
-           bitmap_layer_set_bitmap(pet_layer, pet_sprites[animationCounter]);
+    if(!animationPetPaused){
+        
+        bitmap_layer_set_bitmap(pet_layer, pet_sprites[animationCounter]);
     }
-
-
+    
+    
     
 }
 
 static void handle_tick(struct tm *tick_time, TimeUnits units_changed)
 {
-    if(animationPetPaused){
-
-    static char time_text[] = "00:00:00"; // Needs to be static because it's used by the system later.
+    ++animationCounter;
     
     
-    strftime(time_text, sizeof(time_text), "%T", tick_time);
-    text_layer_set_text(time_layer, time_text);
-    }
     
     
-   ++animationCounter;
+    
     switch (pet_level) {
         case 0:
             // EGG
@@ -337,16 +333,27 @@ static void handle_tick(struct tm *tick_time, TimeUnits units_changed)
             animationPet();
             break;
         case 2:
-            if (animationCounter == 13){
-                animationCounter = 4;
-            }
             if (animationCounter < 4){
                 animationCounter = 4;
             }
+            if (animationCounter == 13){
+                animationCounter = 4;
+            }
+            
             animationPet();
             break;
         default:
             break;
+    }
+    
+    if(animationPetPaused){
+        
+        static char time_text[] = "00:00:00"; // Needs to be static because it's used by the system later.
+        
+        
+        strftime(time_text, sizeof(time_text), "%T", tick_time);
+        text_layer_set_text(time_layer, time_text);
+        
     }
     
     
@@ -368,7 +375,7 @@ static void window_load(Window *me){
     timer = app_timer_register(TIMER_STEP_MS, timer_callback, NULL);
 }
 
-static void destroyIcons(){    
+static void destroyIcons(){
     gbitmap_destroy(bulb);
     gbitmap_destroy(pizza);
     gbitmap_destroy(park);
@@ -390,11 +397,10 @@ static void destroyIcons(){
         gbitmap_destroy(pet_sprites[i]);
     }
     gbitmap_destroy(lightoff);
-
+    
     bitmap_layer_destroy(pet_layer);
     
     text_layer_destroy(time_layer);
-    window_destroy(window);
     
     
 }
