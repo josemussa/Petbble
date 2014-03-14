@@ -181,6 +181,7 @@ static void select_menu() {
             redraw();
             break;
         case 1:
+            // Lights
             toggleLights();
             break;
         default:
@@ -315,7 +316,6 @@ static void showPet(){
 static void handle_tick(struct tm *tick_time, TimeUnits units_changed)
 {
     ++animationCounter; 
-    
     switch (pet_level) {
         case 0:
             // EGG
@@ -339,16 +339,10 @@ static void handle_tick(struct tm *tick_time, TimeUnits units_changed)
     }
     
     if(animationPetPaused){
-        
         static char time_text[] = "00:00:00"; // Needs to be static because it's used by the system later.
-        
-        
         strftime(time_text, sizeof(time_text), "%T", tick_time);
-        text_layer_set_text(time_layer, time_text);
-        
+        text_layer_set_text(time_layer, time_text);   
     }
-    
-    
 }
 
 static void timer_callback(void *data) {
@@ -358,6 +352,12 @@ static void timer_callback(void *data) {
     timer = app_timer_register(TIMER_STEP_MS, timer_callback, NULL);
 }
 
+static void accel_tap_handler(AccelAxisType axis, int32_t direction) {
+    if (animationPetPaused) {
+        toggleLights();
+    }
+}
+
 static void window_load(Window *me){
     if (!pet_load_state(&p)) {
         pet_new(&p);
@@ -365,6 +365,7 @@ static void window_load(Window *me){
     generateIcons();
     showPet();
     timer = app_timer_register(TIMER_STEP_MS, timer_callback, NULL);
+    accel_tap_service_subscribe(&accel_tap_handler);
 }
 
 static void destroyIcons(){
@@ -384,17 +385,13 @@ static void destroyIcons(){
     bitmap_layer_destroy(health_layer);
     bitmap_layer_destroy(discipline_layer);
     bitmap_layer_destroy(call_layer);
-    
     for (int i = 0; i < 16; i++) {
         gbitmap_destroy(pet_sprites[i]);
     }
     gbitmap_destroy(lightoff);
-    
     bitmap_layer_destroy(pet_layer);
-    
     text_layer_destroy(time_layer);
-    
-    
+    accel_tap_service_unsubscribe();
 }
 
 static void window_unload(Window *window) {
