@@ -133,34 +133,37 @@ static void decrement_click_handler(ClickRecognizerRef recognizer, void *context
 }
 
 static void lightsOff(){
+    animationPetPaused = true;
     
-    if(!animationPetPaused){
-        animationPetPaused = true;
-        
-        bitmap_layer_set_bitmap(pet_layer, lightoff);
-        
-        //bitmap_layer_set_bitmap(pet_layer, pet_sprites[14]);
-        
-        
-        time_layer = text_layer_create(GRect(29, 54, 144-40 /* width */, 168-54 /* height */));
-        text_layer_set_text_color(time_layer, GColorWhite);
-        text_layer_set_background_color(time_layer, GColorClear);
-        text_layer_set_font(time_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
-        
-        // Ensures time is displayed immediately (will break if NULL tick event accessed).
-        // (This is why it's a good idea to have a separate routine to do the update itself.)
-        time_t now = time(NULL);
-        struct tm *current_time = localtime(&now);
-        handle_tick(current_time, SECOND_UNIT);
-        tick_timer_service_subscribe(SECOND_UNIT, &handle_tick);
-        
-        layer_add_child(window_get_root_layer(window), text_layer_get_layer(time_layer));
-        
-    }else{
-        
-        text_layer_destroy(time_layer);
-        animationPetPaused = false;
-        
+    bitmap_layer_set_bitmap(pet_layer, lightoff);
+    
+    //bitmap_layer_set_bitmap(pet_layer, pet_sprites[14]);
+    
+    time_layer = text_layer_create(GRect(29, 54, 144-40 /* width */, 168-54 /* height */));
+    text_layer_set_text_color(time_layer, GColorWhite);
+    text_layer_set_background_color(time_layer, GColorClear);
+    text_layer_set_font(time_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
+    
+    // Ensures time is displayed immediately (will break if NULL tick event accessed).
+    // (This is why it's a good idea to have a separate routine to do the update itself.)
+    time_t now = time(NULL);
+    struct tm *current_time = localtime(&now);
+    handle_tick(current_time, SECOND_UNIT);
+    tick_timer_service_subscribe(SECOND_UNIT, &handle_tick);
+    
+    layer_add_child(window_get_root_layer(window), text_layer_get_layer(time_layer));
+}
+
+static void lightsOn() {
+    text_layer_destroy(time_layer);
+    animationPetPaused = false;
+}
+
+static void toggleLights() {
+    if (!animationPetPaused) {
+        lightsOff();
+    } else {
+        lightsOn();
     }
 }
 
@@ -172,7 +175,7 @@ static void select_menu() {
             redraw();
             break;
         case 1:
-            lightsOff();
+            toggleLights();
             break;
         default:
             break;
