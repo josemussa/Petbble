@@ -6,7 +6,7 @@
 
 #define ITEM_MENU_DEFAULT 0
 #define ONE_SECOND 1000
-#define TIMER_STEP_MS (ONE_SECOND * 1)
+#define TIMER_STEP_MS (ONE_SECOND * 1)  // TODO: eventually change to 1 minute
 
 static int animationCounter = 0;
 
@@ -118,23 +118,27 @@ static void redraw() {
 }
 
 static void increment_click_handler(ClickRecognizerRef recognizer, void *context) {
-    // Wrap-around menu
-    if (item_menu >= 7) {
-        item_menu=0;
-    } else {
-        item_menu++;
+    if (!animationPetPaused) {
+        // Wrap-around menu
+        if (item_menu >= 7) {
+            item_menu=0;
+        } else {
+            item_menu++;
+        }
+        
+        update_text();
     }
-    
-    update_text();
 }
 static void decrement_click_handler(ClickRecognizerRef recognizer, void *context) {
-    if (item_menu <= 0) {
-        item_menu = 7;
-    } else {
-        item_menu--;
+    if (!animationPetPaused) {
+        if (item_menu <= 0) {
+            item_menu = 7;
+        } else {
+            item_menu--;
+        }
+        
+        update_text();
     }
-    
-    update_text();
 }
 
 static void lightsOff(){
@@ -364,6 +368,11 @@ static void window_load(Window *me){
     }
     generateIcons();
     showPet();
+    // If app was on standby, call check_status appropriate number of times as if it were open.
+    for (int i = 0; i < (p.fields[LAST_OPEN_KEY] - time(NULL)) / TIMER_STEP_MS; i++) {
+        pet_check_status(&p);
+    }
+    redraw();
     timer = app_timer_register(TIMER_STEP_MS, timer_callback, NULL);
     accel_tap_service_subscribe(&accel_tap_handler);
 }

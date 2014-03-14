@@ -1,15 +1,19 @@
 #ifndef PET_H
 #define PET_H
 
-#define NUM_PET_FIELDS 6
+#define NUM_PET_FIELDS 10
 
 // These serve double duty as keys for persistent storage, and indexes into the Pet struct array.
 #define CURRENT_STAGE_KEY 0
-#define HAPPINESS_KEY 1
-#define HUNGER_KEY 2
-#define DISCIPLINE_KEY 3
-#define TOTAL_AGE_KEY 4
-#define CURRENT_STAGE_AGE_KEY 5
+#define HEALTH_KEY 1
+#define HAPPINESS_KEY 2
+#define HUNGER_KEY 3
+#define DISCIPLINE_KEY 4
+#define WEIGHT_KEY 5
+#define ENERGY_KEY 6
+#define TOTAL_AGE_KEY 7
+#define CURRENT_STAGE_AGE_KEY 8
+#define LAST_OPEN_KEY 9
 
 typedef struct {
     int fields[NUM_PET_FIELDS];
