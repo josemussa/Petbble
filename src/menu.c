@@ -143,7 +143,6 @@ static void decrement_click_handler(ClickRecognizerRef recognizer, void *context
 
 static void lightsOff(){
     animationPetPaused = true;
-    
     bitmap_layer_set_bitmap(pet_layer, lightoff);
     
     //bitmap_layer_set_bitmap(pet_layer, pet_sprites[14]);
@@ -256,20 +255,33 @@ static void generateMiscImages(){
 
 static void generatePet(){
     
-    pet_sprites[0] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_EGG1);
-    pet_sprites[1] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_EGG2);
+    switch (pet_level) {
+        case 0:
+            // EGG
+            pet_sprites[0] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_EGG1);
+            pet_sprites[1] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_EGG2);
+            break;
+        case 2:
+            pet_sprites[4] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BABITCHI1);
+            pet_sprites[5] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BABITCHI2);
+            pet_sprites[6] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BABITCHI3);
+            pet_sprites[7] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BABITCHI4);
+            pet_sprites[8] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BABITCHI5);
+            pet_sprites[9] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BABITCHI6);
+            pet_sprites[10] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BABITCHI7);
+            pet_sprites[11] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BABITCHI8);
+            pet_sprites[12] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BABITCHI9);
+            pet_sprites[13] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BABITCHI10);
+            break;
+        default:
+            break;
+    }
+
+    
+   
     pet_sprites[2] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_EGG3);
     pet_sprites[3] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_EGG4);
-    pet_sprites[4] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BABITCHI1);
-    pet_sprites[5] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BABITCHI2);
-    pet_sprites[6] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BABITCHI3);
-    pet_sprites[7] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BABITCHI4);
-    pet_sprites[8] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BABITCHI5);
-    pet_sprites[9] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BABITCHI6);
-    pet_sprites[10] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BABITCHI7);
-    pet_sprites[11] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BABITCHI8);
-    pet_sprites[12] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BABITCHI9);
-    pet_sprites[13] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BABITCHI10);
+   
     pet_sprites[14] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_RETURN1);
     pet_sprites[15] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_RETURN2);
     
