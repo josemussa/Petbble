@@ -31,6 +31,10 @@ void pet_save_state(Pet *p) {
     }
 }
 
+void pet_die(Pet *p) {
+    // TODO: unimplemented
+}
+
 // Returns 1 if key is a stat from 0 - 3, and 0 otherwise.
 static int counting_stat(int i) {
     switch (i) {
@@ -62,6 +66,7 @@ void pet_new(Pet *p) {
     p->fields[DISCIPLINE_KEY] = 3;
     p->fields[WEIGHT_KEY] = randRange(5, 10);
     p->fields[ENERGY_KEY] = 3;
+    p->fields[SICK_KEY] = 0;
     p->fields[TOTAL_AGE_KEY] = time(NULL);
     p->fields[CURRENT_STAGE_AGE_KEY] = time(NULL);
     p->fields[LAST_OPEN_KEY] = time(NULL);
@@ -77,6 +82,31 @@ void pet_feed(Pet *p) {
     } else {
         // If already full, decrease health by 1.
         p->fields[HEALTH_KEY] = p->fields[HEALTH_KEY] - 1;
+    }
+}
+
+void pet_play(Pet *p) {
+    // Can only play if positive energy, and not sick.
+    if (p->fields[ENERGY_KEY] > 0 && !p->fields[SICK_KEY]) {
+        p->fields[ENERGY_KEY] -= 1;
+        p->fields[WEIGHT_KEY] -= 1;
+        p->fields[HAPPINESS_KEY] += 1;
+        p->fields[HEALTH_KEY] += 1;
+    } else if (p->fields[HEALTH_KEY] > 0) {
+        p->fields[HEALTH_KEY] -= 1;
+    } else if (!p->fields[SICK_KEY]) {
+        p->fields[SICK_KEY] = 1;
+    } else {
+        // If you attempt to play with 0 energy, 0 health, and sick, you die :(
+        pet_die(p);
+    }
+}
+
+void pet_heal(Pet *p) {
+    if (p->fields[SICK_KEY]) {
+        p->fields[SICK_KEY] = 0;
+    } else {
+        p->fields[DISCIPLINE_KEY] -= 1;
     }
 }
 
@@ -99,6 +129,10 @@ static void update_stats(Pet *p, int i) {
     }
     if (rand() % i == 0) {
         p->fields[ENERGY_KEY] = p->fields[ENERGY_KEY] - 1;
+    }
+    // Hungry and unhealthy leads to greater chance of getting sick.
+    if (rand() % (5 * i * (p->fields[HEALTH_KEY] + p->fields[HUNGER_KEY]))) {
+        p->fields[SICK_KEY] = 1;
     }
 }
 
@@ -132,7 +166,8 @@ int pet_check_status(Pet *p) {
             for (int i = 0; i < NUM_PET_FIELDS; i++) {
                 // If one of the stats required to evolve is not maximum, then return.
                 if ((time(NULL) - p->fields[CURRENT_STAGE_AGE_KEY] < ONE_HOUR * 24) || 
-                   (counting_stat(i) && (p->fields[i] < MAX_STAT))) {
+                   (counting_stat(i) && (p->fields[i] < MAX_STAT)) ||
+                    p->fields[SICK_KEY]) {
                     break;
                 }
             }

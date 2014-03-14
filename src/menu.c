@@ -180,16 +180,40 @@ static void toggleLights() {
 static void select_menu() {
     switch (item_menu) {
         case 0:
-            // Pizza
+            //PIZZA
             pet_feed(&p);
             redraw();
             break;
         case 1:
-            // Lights
+            //BULB
             toggleLights();
+            break;
+        case 2:
+            //PARK
+            // TODO: accelerometer minigame
+            pet_play(&p);
+            redraw();
+            break;
+        case 3:
+            //PILL
+            pet_heal(&p);
+            redraw();
+            break;
+        case 4:
+            //BATH
+            break;
+        case 5:
+            //HEALTH
+            break;
+        case 6:
+            //DISCIPLINE
+            break;
+        case 7:
+            //CALL
             break;
         default:
             break;
+
     }
 }
 
