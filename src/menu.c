@@ -43,7 +43,10 @@ static Pet p;
 
 static AppTimer *timer;
 
-static bool animationPetPaused = false;
+#define PET_SCENE 0
+#define CLOCK_SCENE 1
+#define GAME_SCENE 2
+static int currentScene = PET_SCENE;
 
 TextLayer *time_layer; // The clock
 
@@ -105,12 +108,51 @@ static void update_text() {
         default:
             break;
     }
+
 }
 
 static void animationPet(){
-    if(!animationPetPaused){   
+    if (currentScene == PET_SCENE){   
         bitmap_layer_set_bitmap(pet_layer, pet_sprites[animationCounter]);
     }
+}
+
+static void switchScene(int scene) {
+    // First, clean up old scene.
+    switch (currentScene) {
+        case CLOCK_SCENE:
+            text_layer_destroy(time_layer);
+            break;
+    }
+
+    // Then, change to new scene.
+    app_log(0, "menu.c", 129, "Switching scene.");
+    switch (scene) {
+        case PET_SCENE:
+            bitmap_layer_set_bitmap(pet_layer, pet_sprites[animationCounter]);
+            break;
+        case CLOCK_SCENE:
+            app_log(0, "menu.c", 135, "Switching to clock scene.");
+
+            bitmap_layer_set_bitmap(pet_layer, lightoff);
+            
+            time_layer = text_layer_create(GRect(29, 54, 144-40 /* width */, 168-54 /* height */));
+            text_layer_set_text_color(time_layer, GColorWhite);
+            text_layer_set_background_color(time_layer, GColorClear);
+            text_layer_set_font(time_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
+            
+            // Ensures time is displayed immediately (will break if NULL tick event accessed).
+            // (This is why it's a good idea to have a separate routine to do the update itself.)
+            time_t now = time(NULL);
+            struct tm *current_time = localtime(&now);
+            handle_tick(current_time, SECOND_UNIT);
+            tick_timer_service_subscribe(SECOND_UNIT, &handle_tick);
+            
+            layer_add_child(window_get_root_layer(window), text_layer_get_layer(time_layer));
+            break;
+    }
+
+    currentScene = scene;
 }
 
 static void redraw() {
@@ -118,7 +160,7 @@ static void redraw() {
 }
 
 static void increment_click_handler(ClickRecognizerRef recognizer, void *context) {
-    if (!animationPetPaused) {
+    if (currentScene == PET_SCENE) {
         // Wrap-around menu
         if (item_menu >= 7) {
             item_menu=0;
@@ -130,7 +172,7 @@ static void increment_click_handler(ClickRecognizerRef recognizer, void *context
     }
 }
 static void decrement_click_handler(ClickRecognizerRef recognizer, void *context) {
-    if (!animationPetPaused) {
+    if (currentScene == PET_SCENE) {
         if (item_menu <= 0) {
             item_menu = 7;
         } else {
@@ -141,39 +183,11 @@ static void decrement_click_handler(ClickRecognizerRef recognizer, void *context
     }
 }
 
-static void lightsOff(){
-    animationPetPaused = true;
-    
-    bitmap_layer_set_bitmap(pet_layer, lightoff);
-    
-    //bitmap_layer_set_bitmap(pet_layer, pet_sprites[14]);
-    
-    time_layer = text_layer_create(GRect(29, 54, 144-40 /* width */, 168-54 /* height */));
-    text_layer_set_text_color(time_layer, GColorWhite);
-    text_layer_set_background_color(time_layer, GColorClear);
-    text_layer_set_font(time_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
-    
-    // Ensures time is displayed immediately (will break if NULL tick event accessed).
-    // (This is why it's a good idea to have a separate routine to do the update itself.)
-    time_t now = time(NULL);
-    struct tm *current_time = localtime(&now);
-    handle_tick(current_time, SECOND_UNIT);
-    tick_timer_service_subscribe(SECOND_UNIT, &handle_tick);
-    
-    layer_add_child(window_get_root_layer(window), text_layer_get_layer(time_layer));
-}
-
-static void lightsOn() {
-    text_layer_destroy(time_layer);
-    animationPetPaused = false;
-    animationPet();
-}
-
 static void toggleLights() {
-    if (!animationPetPaused) {
-        lightsOff();
-    } else {
-        lightsOn();
+    if (currentScene == PET_SCENE) {
+        switchScene(CLOCK_SCENE);
+    } else if (currentScene == CLOCK_SCENE) {
+        switchScene(PET_SCENE);
     }
 }
 
@@ -341,35 +355,38 @@ static void showPet(){
     
 }
 
-static void handle_tick(struct tm *tick_time, TimeUnits units_changed)
-{
-    ++animationCounter; 
-    switch (pet_level) {
-        case 0:
-            // EGG
-            if (animationCounter == 2){
-                animationCounter = 0;
+static void handle_tick(struct tm *tick_time, TimeUnits units_changed) {
+    switch (currentScene) {
+        case PET_SCENE:
+            ++animationCounter;
+            switch (pet_level) {
+                case 0:
+                    // EGG
+                    if (animationCounter == 2){
+                        animationCounter = 0;
+                    }
+                    animationPet();
+                    break;
+                case 2:
+                    if (animationCounter < 4){
+                        animationCounter = 4;
+                    }
+                    if (animationCounter == 13){
+                        animationCounter = 4;
+                    }
+                    
+                    animationPet();
+                    break;
+                default:
+                    break;
             }
-            animationPet();
             break;
-        case 2:
-            if (animationCounter < 4){
-                animationCounter = 4;
-            }
-            if (animationCounter == 13){
-                animationCounter = 4;
-            }
-            
-            animationPet();
-            break;
-        default:
-            break;
-    }
     
-    if(animationPetPaused){
-        static char time_text[] = "00:00:00"; // Needs to be static because it's used by the system later.
-        strftime(time_text, sizeof(time_text), "%T", tick_time);
-        text_layer_set_text(time_layer, time_text);   
+        case CLOCK_SCENE: ;  // This semicolon is necessary because C99 is dumb and declarations cannot be the first line after a case statement...
+            static char time_text[] = "00:00:00"; // Needs to be static because it's used by the system later.
+            strftime(time_text, sizeof(time_text), "%T", tick_time);
+            text_layer_set_text(time_layer, time_text);
+            break;
     }
 }
 
@@ -381,7 +398,7 @@ static void timer_callback(void *data) {
 }
 
 static void accel_tap_handler(AccelAxisType axis, int32_t direction) {
-    if (animationPetPaused) {
+    if (currentScene == CLOCK_SCENE) {
         toggleLights();
     }
 }
