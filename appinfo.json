@@ -123,6 +123,46 @@
       },
       {
         "type": "png",
+        "name": "IMAGE_KUCHIT1",
+        "file": "images/pet/kuchit/1.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_KUCHIT2",
+        "file": "images/pet/kuchit/2.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_KUCHIT3",
+        "file": "images/pet/kuchit/3.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_KUCHIT4",
+        "file": "images/pet/kuchit/4.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_KUCHIT5",
+        "file": "images/pet/kuchit/5.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_KUCHIT6",
+        "file": "images/pet/kuchit/6.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_KUCHIT7",
+        "file": "images/pet/kuchit/7.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_KUCHIT8",
+        "file": "images/pet/kuchit/8.png"
+      },
+      {
+        "type": "png",
         "name": "IMAGE_RETURN1",
         "file": "images/pet/return/1.png"
       },

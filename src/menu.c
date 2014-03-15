@@ -36,7 +36,7 @@ static GBitmap *call;
 
 static BitmapLayer *pet_layer;
 
-static GBitmap *pet_sprites[16];
+static GBitmap *pet_sprites[24];
 static GBitmap *lightoff;
 
 static Pet p;
@@ -261,7 +261,7 @@ static void generatePet(){
             pet_sprites[0] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_EGG1);
             pet_sprites[1] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_EGG2);
             break;
-        case 2:
+        case 1:
             pet_sprites[4] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BABITCHI1);
             pet_sprites[5] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BABITCHI2);
             pet_sprites[6] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BABITCHI3);
@@ -273,6 +273,15 @@ static void generatePet(){
             pet_sprites[12] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BABITCHI9);
             pet_sprites[13] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BABITCHI10);
             break;
+        case 2:
+            pet_sprites[16] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_KUCHIT1);
+            pet_sprites[17] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_KUCHIT2);
+            pet_sprites[18] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_KUCHIT3);
+            pet_sprites[19] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_KUCHIT4);
+            pet_sprites[20] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_KUCHIT5);
+            pet_sprites[21] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_KUCHIT6);
+            pet_sprites[22] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_KUCHIT7);
+            pet_sprites[23] = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_KUCHIT8);
         default:
             break;
     }
@@ -338,6 +347,9 @@ static void generateIcons(){
 
 static void showPet(){
     
+    if(pet_layer){
+        bitmap_layer_destroy(pet_layer);
+    }
     Layer *window_layer = window_get_root_layer(window);
     GRect bounds = layer_get_frame(window_layer);
     
@@ -364,12 +376,22 @@ static void handle_tick(struct tm *tick_time, TimeUnits units_changed)
             }
             animationPet();
             break;
-        case 2:
+        case 1:
             if (animationCounter < 4){
                 animationCounter = 4;
             }
             if (animationCounter == 13){
                 animationCounter = 4;
+            }
+            
+            animationPet();
+            break;
+        case 2:
+            if (animationCounter < 16){
+                animationCounter = 16;
+            }
+            if (animationCounter == 24){
+                animationCounter = 16;
             }
             
             animationPet();
@@ -381,9 +403,11 @@ static void handle_tick(struct tm *tick_time, TimeUnits units_changed)
     if(animationPetPaused){
         static char time_text[] = "00:00:00"; // Needs to be static because it's used by the system later.
         strftime(time_text, sizeof(time_text), "%T", tick_time);
-        text_layer_set_text(time_layer, time_text);   
+        text_layer_set_text(time_layer, time_text);
     }
 }
+
+
 
 static void timer_callback(void *data) {
     if (pet_check_status(&p)) {
