@@ -134,7 +134,7 @@ static void switchScene(int scene) {
         case CLOCK_SCENE:
             app_log(0, "menu.c", 135, "Switching to clock scene.");
 
-            bitmap_layer_set_bitmap(pet_layer, lightoff);
+           
             
             time_layer = text_layer_create(GRect(29, 54, 144-40 /* width */, 168-54 /* height */));
             text_layer_set_text_color(time_layer, GColorWhite);
@@ -149,6 +149,7 @@ static void switchScene(int scene) {
             tick_timer_service_subscribe(SECOND_UNIT, &handle_tick);
             
             layer_add_child(window_get_root_layer(window), text_layer_get_layer(time_layer));
+            bitmap_layer_set_bitmap(pet_layer, lightoff);
             break;
     }
 
@@ -255,7 +256,8 @@ static void click_config_provider(void *context) {
 }
 
 static void generateMiscImages(){
-    
+
+    lightoff = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_LIGHTSOFF);
     pizza = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_PIZZA);
     bulb = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BULB);
     park = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_PARK);
@@ -264,7 +266,7 @@ static void generateMiscImages(){
     health = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_HEALTH);
     discipline = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_DISCIPLINE);
     call = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_CALL);
-    lightoff = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_LIGHTSOFF);
+    
     
 }
 
