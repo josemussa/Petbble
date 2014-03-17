@@ -3,6 +3,13 @@
 
 #define NUM_PET_FIELDS 11
 
+#define NUM_PET_STAGES 5
+#define EGG_STAGE 0
+#define BABITCHI_STAGE 1
+#define MARUTCHI_STAGE 2
+#define KUCHIT_STAGE 3
+#define RETURN_STAGE 4
+
 // These serve double duty as keys for persistent storage, and indexes into the Pet struct array.
 #define CURRENT_STAGE_KEY 0
 #define HEALTH_KEY 1

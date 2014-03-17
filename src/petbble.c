@@ -2,6 +2,7 @@
 
 #include "menu.c"
 
+static Window *window;
 
 static void init(void){
     srand(time(NULL));

@@ -1,12 +1,6 @@
 #include "pet.h"
 #include "pebble.h"
 
-#define EGG_STAGE_0 0
-#define EGG_STAGE_1 1
-#define EGG_STAGE_2 2
-#define BABITCHI_STAGE 3
-#define MARUTCHI_STAGE 4
-
 #define MAX_STAT 3
 
 #define ONE_SECOND  1000
@@ -161,17 +155,10 @@ static void update_stats(Pet *p, int i) {
 int pet_check_status(Pet *p) {
     int modify = 0;
     switch (p->fields[CURRENT_STAGE_KEY]) {
-        case EGG_STAGE_0:
-            p->fields[CURRENT_STAGE_KEY] = EGG_STAGE_1;
-            p->fields[CURRENT_STAGE_AGE_KEY] = time(NULL);
-            modify = 1;
-            break;
-        case EGG_STAGE_1:
-            p->fields[CURRENT_STAGE_KEY] = EGG_STAGE_2;
-            p->fields[CURRENT_STAGE_AGE_KEY] = time(NULL);
-            modify = 1;
-            break;
-        case EGG_STAGE_2:
+        case EGG_STAGE:
+            if (time(NULL) - p->fields[CURRENT_STAGE_AGE_KEY] < ONE_MINUTE) {
+                break;
+            }
             p->fields[CURRENT_STAGE_KEY] = BABITCHI_STAGE;
             p->fields[HEALTH_KEY] = 3;
             p->fields[HAPPINESS_KEY] = 3;
