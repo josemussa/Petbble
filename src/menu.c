@@ -36,12 +36,21 @@ static void decrement_click_handler(ClickRecognizerRef recognizer, void *context
     }
 }
 
-static void toggleLights() {
+static void toggle_lights() {
     if (currentScene == PET_SCENE) {
         switchScene(CLOCK_SCENE, window);
     } else if (currentScene == CLOCK_SCENE) {
         switchScene(PET_SCENE, window);
-        update_menu();
+        update_menu(item_menu);
+    }
+}
+
+static void toggle_game() {
+    if (currentScene == PET_SCENE) {
+        switchScene(GAME_SCENE, window);
+    } else if (currentScene == GAME_SCENE) {
+        switchScene(PET_SCENE, window);
+        update_menu(item_menu);
     }
 }
 
@@ -53,12 +62,13 @@ static void select_menu() {
             break;
         case 1:
             //BULB
-            toggleLights();
+            toggle_lights();
             break;
         case 2:
             //PARK
             // TODO: accelerometer minigame
-            pet_play(&p);
+            toggle_game();
+            //pet_play(&p);
             break;
         case 3:
             //PILL
@@ -110,9 +120,8 @@ static void update_pet_timer_callback(void *data) {
 }
 
 static void accel_tap_handler(AccelAxisType axis, int32_t direction) {
-    app_log(0, "menu.c", 112, "Current scene: %d", currentScene);
     if (currentScene == CLOCK_SCENE) {
-        //toggleLights();
+        toggle_lights();
     }
 }
 
@@ -129,7 +138,7 @@ static void window_load(Window *me){
     }
     pet_status_timer = app_timer_register(TIMER_STEP_MS, update_pet_timer_callback, NULL);
     accel_tap_service_subscribe(&accel_tap_handler);
-    update_menu();
+    update_menu(item_menu);
 }
 
 static void window_unload(Window *window) {
