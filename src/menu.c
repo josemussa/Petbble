@@ -1,16 +1,23 @@
 #include "menu.h"
 #include "pebble.h"
 #include "pet.h"
-#include "graphics.h"
+#include "graphics/graphics.h"
+#include "graphics/petscene.h"
+#include "graphics/clockscene.h"
 
 #define ITEM_MENU_DEFAULT 0
 #define ONE_SECOND 1000
 #define TIMER_STEP_MS (ONE_SECOND * 1)  // TODO: eventually change to 1 minute
 
+#define PET_SCENE 0
+#define CLOCK_SCENE 1
+#define GAME_SCENE 2
+
 static int item_menu = ITEM_MENU_DEFAULT;
 static Pet p;
 static AppTimer *pet_status_timer;
 static Window *window;
+static int currentScene;
 
 static void increment_click_handler(ClickRecognizerRef recognizer, void *context) {
     if (currentScene == PET_SCENE) {
@@ -20,7 +27,6 @@ static void increment_click_handler(ClickRecognizerRef recognizer, void *context
         } else {
             item_menu++;
         }
-        
         update_menu(item_menu);
     }
 }
@@ -31,26 +37,37 @@ static void decrement_click_handler(ClickRecognizerRef recognizer, void *context
         } else {
             item_menu--;
         }
-        
         update_menu(item_menu);
     }
 }
 
 static void toggle_lights() {
     if (currentScene == PET_SCENE) {
-        switchScene(CLOCK_SCENE, window);
+        graphics_generate_clock_scene(window);
+        currentScene = CLOCK_SCENE;
+
+        graphics_destroy_pet_scene();
     } else if (currentScene == CLOCK_SCENE) {
-        switchScene(PET_SCENE, window);
+        graphics_generate_pet_scene(window, &p);
         update_menu(item_menu);
+        currentScene = PET_SCENE;
+
+        graphics_destroy_clock_scene();
     }
 }
 
 static void toggle_game() {
     if (currentScene == PET_SCENE) {
-        switchScene(GAME_SCENE, window);
+        //graphics_generate_game_scene(window);
+        currentScene = GAME_SCENE;
+
+        graphics_destroy_pet_scene();
     } else if (currentScene == GAME_SCENE) {
-        switchScene(PET_SCENE, window);
+        graphics_generate_pet_scene(window, &p);
         update_menu(item_menu);
+        currentScene = PET_SCENE;
+
+        //graphics_destroy_game_scene();
     }
 }
 
@@ -87,6 +104,7 @@ static void select_menu() {
             //CALL
             break;
         default:
+            app_log(0, "menu.c", 103, "Switch case in select_menu() does not exist.");
             break;
 
     }
@@ -141,9 +159,26 @@ static void window_load(Window *me){
     update_menu(item_menu);
 }
 
+static void destroy_current_scene() {
+    switch (currentScene) {
+        case PET_SCENE:
+            graphics_destroy_pet_scene();
+            break;
+        case CLOCK_SCENE:
+            graphics_destroy_clock_scene();
+            break;
+        case GAME_SCENE:
+            //graphics_destroy_game_scene();
+            break;
+        default:
+            app_log(0, "menu.c", 170, "Switch case in destroy_current_scene() does not exist.");
+            break;
+    }
+}
+
 static void window_unload(Window *window) {
     pet_save_state(&p);
-    graphics_destroy_current_scene();
+    destroy_current_scene();
     app_timer_cancel(pet_status_timer);
     accel_tap_service_unsubscribe();
 }
