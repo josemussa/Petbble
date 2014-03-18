@@ -9,7 +9,7 @@
 
 static int item_menu = ITEM_MENU_DEFAULT;
 static Pet p;
-static AppTimer *timer;
+static AppTimer *pet_status_timer;
 static Window *window;
 
 static void increment_click_handler(ClickRecognizerRef recognizer, void *context) {
@@ -41,6 +41,7 @@ static void toggleLights() {
         switchScene(CLOCK_SCENE, window);
     } else if (currentScene == CLOCK_SCENE) {
         switchScene(PET_SCENE, window);
+        update_menu();
     }
 }
 
@@ -105,33 +106,35 @@ static void click_config_provider(void *context) {
 
 static void update_pet_timer_callback(void *data) {
     pet_check_status(&p);
-    timer = app_timer_register(TIMER_STEP_MS, update_pet_timer_callback, NULL);
+    pet_status_timer = app_timer_register(TIMER_STEP_MS, update_pet_timer_callback, NULL);
 }
 
 static void accel_tap_handler(AccelAxisType axis, int32_t direction) {
+    app_log(0, "menu.c", 112, "Current scene: %d", currentScene);
     if (currentScene == CLOCK_SCENE) {
-        toggleLights();
+        //toggleLights();
     }
 }
 
 static void window_load(Window *me){
+    currentScene = PET_SCENE;
     window = me;
     if (!pet_load_state(&p)) {
         pet_new(&p);
     }
-    //graphics_generate_icons(me);
     graphics_generate_pet_scene(me, &p);
     // If app was on standby, call check_status appropriate number of times as if it were open.
     for (int i = 0; i < (p.fields[LAST_OPEN_KEY] - time(NULL)) / TIMER_STEP_MS; i++) {
         pet_check_status(&p);
     }
-    timer = app_timer_register(TIMER_STEP_MS, update_pet_timer_callback, NULL);
+    pet_status_timer = app_timer_register(TIMER_STEP_MS, update_pet_timer_callback, NULL);
     accel_tap_service_subscribe(&accel_tap_handler);
+    update_menu();
 }
 
 static void window_unload(Window *window) {
     pet_save_state(&p);
     graphics_destroy_current_scene();
-    app_timer_cancel(timer);
+    app_timer_cancel(pet_status_timer);
     accel_tap_service_unsubscribe();
 }

@@ -5,7 +5,8 @@
 static Window *window;
 
 static void init(void){
-    srand(time(NULL));
+    //srand(time(NULL));  //TODO: uncomment this later.  there is a bug with the Pebble API which makes srand leak memory, 
+                          //but it is very small so it isn't that important.  Easier debugging for now though with this commented out.
     
     window = window_create();
     window_set_click_config_provider(window, click_config_provider);

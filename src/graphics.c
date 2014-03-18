@@ -23,6 +23,8 @@ static GBitmap *health;
 static GBitmap *discipline;
 static GBitmap *call;
 
+int currentScene;
+
 static BitmapLayer *pet_layer;
 #define MAX_ANIMATION_FRAMES 10
 static GBitmap *pet_sprites[NUM_PET_STAGES][MAX_ANIMATION_FRAMES + 1];
@@ -43,16 +45,39 @@ static void animate_clock_callback(struct tm *tick_time, TimeUnits units_changed
 
 GBitmap* gbitmap_create_with_resource_safe(uint32_t resource_id) {
 	GBitmap* val = gbitmap_create_with_resource(resource_id);
-	app_log(0, "graphics.c", 5, "Creating resource %d at pointer %p", (int) resource_id, val);
+	app_log(0, "graphics.c", 46, "Creating gbitmap %d at pointer %p", (int) resource_id, val);
 	if (!val && DEBUG_MODE) {
+		app_log(0, "graphics.c", 48, "Ran out of memory while creating gbitmap.");
 		GBitmap** runtime_error = NULL;
 		return *runtime_error;
 	}
 	return val;
 }
 
-static void generateMiscImages(){
-    lightoff = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_LIGHTSOFF);
+BitmapLayer* bitmap_layer_create_safe(GRect frame) {
+	BitmapLayer* val = bitmap_layer_create(frame);
+	app_log(0, "graphics.c", 47, "Creating bitmap layer at pointer %p", val);
+	if (!val && DEBUG_MODE) {
+		BitmapLayer** runtime_error = NULL;
+		return *runtime_error;
+	}
+	return val;
+}
+
+void gbitmap_destroy_safe(GBitmap* bitmap) {
+	app_log(0, "graphics.c", 66, "Destroying gbitmap at pointer %p", bitmap);
+	gbitmap_destroy(bitmap);
+}
+
+void bitmap_layer_destroy_safe(BitmapLayer* bitmap_layer) {
+	app_log(0, "graphics.c", 71, "Destroying bitmap layer at pointer %p", bitmap_layer);
+	bitmap_layer_destroy(bitmap_layer);
+}
+
+static void generate_icons(Window *window){
+    
+    Layer *window_layer = window_get_root_layer(window);
+    
     pizza = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_PIZZA);
     bulb = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_BULB);
     park = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_PARK);
@@ -61,52 +86,44 @@ static void generateMiscImages(){
     health = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_HEALTH);
     discipline = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_DISCIPLINE);
     call = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_CALL);
-}
 
-static void generate_icons(Window *window){
-    
-    Layer *window_layer = window_get_root_layer(window);
-    
-    // This needs to be deinited on app exit which is when the event loop ends
-    generateMiscImages();
-    
     // PIZZA
-    pizza_layer = bitmap_layer_create(GRect(8,2,20, 20));
+    pizza_layer = bitmap_layer_create_safe(GRect(8,2,20, 20));
     bitmap_layer_set_bitmap(pizza_layer, pizza);
     layer_add_child(window_layer, bitmap_layer_get_layer(pizza_layer));
     
     // BULB
-    bulb_layer = bitmap_layer_create(GRect(44,2,20,20));
+    bulb_layer = bitmap_layer_create_safe(GRect(44,2,20,20));
     bitmap_layer_set_bitmap(bulb_layer, bulb);
     layer_add_child(window_layer, bitmap_layer_get_layer(bulb_layer));
     
     // PARK
-    park_layer = bitmap_layer_create(GRect(80,2,20,20));
+    park_layer = bitmap_layer_create_safe(GRect(80,2,20,20));
     bitmap_layer_set_bitmap(park_layer, park);
     layer_add_child(window_layer, bitmap_layer_get_layer(park_layer));
     
     // PILL
-    pill_layer = bitmap_layer_create(GRect(116,2,20,20));
+    pill_layer = bitmap_layer_create_safe(GRect(116,2,20,20));
     bitmap_layer_set_bitmap(pill_layer, pill);
     layer_add_child(window_layer, bitmap_layer_get_layer(pill_layer));
     
     // BATH
-    bath_layer = bitmap_layer_create(GRect(8,130,20, 20));
+    bath_layer = bitmap_layer_create_safe(GRect(8,130,20, 20));
     bitmap_layer_set_bitmap(bath_layer, bath);
     layer_add_child(window_layer, bitmap_layer_get_layer(bath_layer));
     
     // HEALTH
-    health_layer = bitmap_layer_create(GRect(44,130,20, 20));
+    health_layer = bitmap_layer_create_safe(GRect(44,130,20, 20));
     bitmap_layer_set_bitmap(health_layer, health);
     layer_add_child(window_layer, bitmap_layer_get_layer(health_layer));
     
     // DISCIPLINE
-    discipline_layer = bitmap_layer_create(GRect(80,130,20, 20));
+    discipline_layer = bitmap_layer_create_safe(GRect(80,130,20, 20));
     bitmap_layer_set_bitmap(discipline_layer, discipline);
     layer_add_child(window_layer, bitmap_layer_get_layer(discipline_layer));
     
     // CALL
-    call_layer = bitmap_layer_create(GRect(116,130,20, 20));
+    call_layer = bitmap_layer_create_safe(GRect(116,130,20, 20));
     bitmap_layer_set_bitmap(call_layer, call);
     layer_add_child(window_layer, bitmap_layer_get_layer(call_layer));
     
@@ -115,7 +132,7 @@ static void generate_icons(Window *window){
 static void deallocate_pet_sprite(int previous_stage) {
 	for (int i = 0; i < MAX_ANIMATION_FRAMES; i++) {
 		if (pet_sprites[previous_stage][i]) {
-			gbitmap_destroy(pet_sprites[previous_stage][i]);
+			gbitmap_destroy_safe(pet_sprites[previous_stage][i]);
 		}
 	}
 }
@@ -175,7 +192,7 @@ void graphics_generate_pet_scene(Window *window, Pet *pet) {
     generate_icons(window);
     
     // CREATE PET
-    pet_layer = bitmap_layer_create(bounds);
+    pet_layer = bitmap_layer_create_safe(bounds);
     bitmap_layer_set_alignment(pet_layer, GAlignCenter);
     layer_add_child(window_layer, bitmap_layer_get_layer(pet_layer));
     
@@ -186,7 +203,7 @@ static void graphics_generate_clock_scene(Window *window) {
 	Layer *window_layer = window_get_root_layer(window);
     GRect bounds = layer_get_frame(window_layer);
 
-    lightsoff_layer = bitmap_layer_create(bounds);
+    lightsoff_layer = bitmap_layer_create_safe(bounds);
 
 	time_layer = text_layer_create(GRect(29, 54, 144-40 /* width */, 168-54 /* height */));
     text_layer_set_text_color(time_layer, GColorWhite);
@@ -200,29 +217,31 @@ static void graphics_generate_clock_scene(Window *window) {
     animate_clock_callback(current_time, SECOND_UNIT);
     tick_timer_service_subscribe(SECOND_UNIT, &animate_clock_callback);
     
-    layer_add_child(window_layer, text_layer_get_layer(time_layer));
+    lightoff = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_LIGHTSOFF);
     bitmap_layer_set_bitmap(lightsoff_layer, lightoff);
+    layer_add_child(window_layer, bitmap_layer_get_layer(lightsoff_layer));
+    layer_add_child(window_layer, text_layer_get_layer(time_layer));
 }
 
 // DEINITIALIZATION STUFF
 
 static void destroy_icons() {
-    gbitmap_destroy(bulb);
-    gbitmap_destroy(pizza);
-    gbitmap_destroy(park);
-    gbitmap_destroy(pill);
-    gbitmap_destroy(bath);
-    gbitmap_destroy(health);
-    gbitmap_destroy(discipline);
-    gbitmap_destroy(call);
-    bitmap_layer_destroy(pizza_layer);
-    bitmap_layer_destroy(bulb_layer);
-    bitmap_layer_destroy(park_layer);
-    bitmap_layer_destroy(pill_layer);
-    bitmap_layer_destroy(bath_layer);
-    bitmap_layer_destroy(health_layer);
-    bitmap_layer_destroy(discipline_layer);
-    bitmap_layer_destroy(call_layer);
+    gbitmap_destroy_safe(bulb);
+    gbitmap_destroy_safe(pizza);
+    gbitmap_destroy_safe(park);
+    gbitmap_destroy_safe(pill);
+    gbitmap_destroy_safe(bath);
+    gbitmap_destroy_safe(health);
+    gbitmap_destroy_safe(discipline);
+    gbitmap_destroy_safe(call);
+    bitmap_layer_destroy_safe(pizza_layer);
+    bitmap_layer_destroy_safe(bulb_layer);
+    bitmap_layer_destroy_safe(park_layer);
+    bitmap_layer_destroy_safe(pill_layer);
+    bitmap_layer_destroy_safe(bath_layer);
+    bitmap_layer_destroy_safe(health_layer);
+    bitmap_layer_destroy_safe(discipline_layer);
+    bitmap_layer_destroy_safe(call_layer);
 }
 
 void graphics_destroy_current_scene() {
@@ -231,14 +250,14 @@ void graphics_destroy_current_scene() {
 			if (p != NULL) {
 				deallocate_pet_sprite(p->fields[CURRENT_STAGE_KEY]);
 			}
-    		bitmap_layer_destroy(pet_layer);
+    		bitmap_layer_destroy_safe(pet_layer);
     		destroy_icons();
     		app_timer_cancel(pet_animation_timer);
 			break;
 		case CLOCK_SCENE:
-			gbitmap_destroy(lightoff);
 			text_layer_destroy(time_layer);
-			bitmap_layer_destroy(lightsoff_layer);
+			gbitmap_destroy_safe(lightoff);
+			bitmap_layer_destroy_safe(lightsoff_layer);
 			tick_timer_service_unsubscribe();
 			break;
 	}
@@ -324,6 +343,8 @@ void update_menu(int item_menu) {
 // SCENE SWITCHING STUFF
 
 void switchScene(int scene, Window *window) {
+	app_log(0, "graphics.c", 344, "Switching to scene %d", scene);
+    
     // First, clean up old scene.
     graphics_destroy_current_scene();
 
@@ -338,4 +359,5 @@ void switchScene(int scene, Window *window) {
     }
 
     currentScene = scene;
+    app_log(0, "graphics.c", 360, "Current scene after assignment: %d", currentScene);
 }
