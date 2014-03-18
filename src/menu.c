@@ -4,6 +4,7 @@
 #include "graphics/graphics.h"
 #include "graphics/petscene.h"
 #include "graphics/clockscene.h"
+#include "graphics/gamescene.h"
 
 #define ITEM_MENU_DEFAULT 0
 #define ONE_SECOND 1000
@@ -58,7 +59,7 @@ static void toggle_lights() {
 
 static void toggle_game() {
     if (currentScene == PET_SCENE) {
-        //graphics_generate_game_scene(window);
+        graphics_generate_game_scene(window);
         currentScene = GAME_SCENE;
 
         graphics_destroy_pet_scene();
@@ -67,7 +68,7 @@ static void toggle_game() {
         update_menu(item_menu);
         currentScene = PET_SCENE;
 
-        //graphics_destroy_game_scene();
+        graphics_destroy_game_scene();
     }
 }
 
@@ -168,7 +169,7 @@ static void destroy_current_scene() {
             graphics_destroy_clock_scene();
             break;
         case GAME_SCENE:
-            //graphics_destroy_game_scene();
+            graphics_destroy_game_scene();
             break;
         default:
             app_log(0, "menu.c", 170, "Switch case in destroy_current_scene() does not exist.");
