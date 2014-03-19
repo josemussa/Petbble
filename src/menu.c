@@ -77,6 +77,7 @@ static void select_menu() {
         case 0:
             //PIZZA
             pet_feed(&p);
+            generate_actions(window);
             break;
         case 1:
             //BULB

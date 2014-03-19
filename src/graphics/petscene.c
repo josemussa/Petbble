@@ -26,6 +26,7 @@ static GBitmap *discipline;
 static GBitmap *call;
 
 static BitmapLayer *pet_layer;
+static BitmapLayer *actions_layer;
 #define MAX_ANIMATION_FRAMES 10
 static GBitmap *pet_sprites[NUM_PET_STAGES][MAX_ANIMATION_FRAMES + 1];
 static int animationCounter = 0;
@@ -33,6 +34,7 @@ static AppTimer *pet_animation_timer;
 static Pet *p;
 
 static void animate_pet_timer_callback(void *data);
+
 
 static void generate_icons(Window *window){
     
@@ -122,7 +124,6 @@ static void generatePet(int current_stage) {
         case EGG_STAGE:
         	pet_sprites[EGG_STAGE][0] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_EGG1);
         	pet_sprites[EGG_STAGE][1] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_EGG2);
-        	pet_sprites[EGG_STAGE][2] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_EGG3);
         	pet_sprites[EGG_STAGE][3] = NULL;
             break;
         case BABITCHI_STAGE:
@@ -161,6 +162,18 @@ static void generatePet(int current_stage) {
     }
 }
 
+void generate_actions(Window *window){
+
+    Layer *window_layer = window_get_root_layer(window);
+
+    pizza = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_PIZZA);
+    actions_layer = bitmap_layer_create_safe(GRect(10,50,20, 20));
+    bitmap_layer_set_bitmap(actions_layer, pizza);
+    layer_add_child(window_layer, bitmap_layer_get_layer(actions_layer));
+    layer_insert_above_sibling(bitmap_layer_get_layer(actions_layer), bitmap_layer_get_layer(pet_layer)) ;
+
+}
+
 void graphics_generate_pet_scene(Window *window, Pet *pet) {
     Layer *window_layer = window_get_root_layer(window);
     GRect bounds = layer_get_frame(window_layer);
@@ -171,12 +184,14 @@ void graphics_generate_pet_scene(Window *window, Pet *pet) {
     generatePet(p->fields[CURRENT_STAGE_KEY]);
     generate_icons(window);
     
+    
     // CREATE PET
     pet_layer = bitmap_layer_create_safe(bounds);
     bitmap_layer_set_alignment(pet_layer, GAlignCenter);
     layer_add_child(window_layer, bitmap_layer_get_layer(pet_layer));
     
     app_timer_register(SECOND_UNIT, animate_pet_timer_callback, NULL);
+
 }
 
 void graphics_destroy_pet_scene() {
@@ -184,6 +199,7 @@ void graphics_destroy_pet_scene() {
 		deallocate_pet_sprite(p->fields[CURRENT_STAGE_KEY]);
 	}
 	bitmap_layer_destroy_safe(pet_layer);
+    bitmap_layer_destroy_safe(actions_layer);
 	destroy_icons();
 	app_timer_cancel(pet_animation_timer);
 }
