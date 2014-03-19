@@ -2,10 +2,8 @@
 #include "clockscene.h"
 #include "graphics.h"
 
-static GBitmap *lightoff;
-
-static BitmapLayer *lightsoff_layer;
 TextLayer *time_layer; // The clock
+static Window *window;
 
 static void animate_clock_callback(struct tm *tick_time, TimeUnits units_changed) {
     static char time_text[] = "00:00:00"; // Needs to be static because it's used by the system later.
@@ -13,11 +11,9 @@ static void animate_clock_callback(struct tm *tick_time, TimeUnits units_changed
     text_layer_set_text(time_layer, time_text);
 }
 
-void graphics_generate_clock_scene(Window *window) {
+void graphics_generate_clock_scene(Window *w) {
+	window = w;
 	Layer *window_layer = window_get_root_layer(window);
-    GRect bounds = layer_get_frame(window_layer);
-
-    lightsoff_layer = bitmap_layer_create_safe(bounds);
 
 	time_layer = text_layer_create(GRect(29, 54, 144-40 /* width */, 168-54 /* height */));
     text_layer_set_text_color(time_layer, GColorWhite);
@@ -31,15 +27,12 @@ void graphics_generate_clock_scene(Window *window) {
     animate_clock_callback(current_time, SECOND_UNIT);
     tick_timer_service_subscribe(SECOND_UNIT, &animate_clock_callback);
     
-    lightoff = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_LIGHTSOFF);
-    bitmap_layer_set_bitmap(lightsoff_layer, lightoff);
-    layer_add_child(window_layer, bitmap_layer_get_layer(lightsoff_layer));
     layer_add_child(window_layer, text_layer_get_layer(time_layer));
+	window_set_background_color(window, GColorBlack);
 }
 
 void graphics_destroy_clock_scene() {
 	text_layer_destroy(time_layer);
-	gbitmap_destroy_safe(lightoff);
-	bitmap_layer_destroy_safe(lightsoff_layer);
 	tick_timer_service_unsubscribe();
+	window_set_background_color(window, GColorWhite);
 }

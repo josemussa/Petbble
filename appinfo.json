@@ -170,11 +170,6 @@
         "type": "png",
         "name": "IMAGE_RETURN2",
         "file": "images/pet/return/2.png"
-      },
-      {
-        "type": "png",
-        "name": "IMAGE_LIGHTSOFF",
-        "file": "images/actions/lights/off.png"
       }
     ]
   }
