@@ -31,17 +31,22 @@ static GBitmap *call;
 
 static BitmapLayer *pet_layer;
 static BitmapLayer *actions_layer;
+static BitmapLayer *static_actions_layer;
 #define MAX_ANIMATION_FRAMES 10
 static GBitmap *pet_sprites[NUM_PET_STAGES][MAX_ANIMATION_FRAMES + 1];
 static GBitmap *actions_sprites[NUM_ACTIONS][MAX_ANIMATION_FRAMES + 1];
 static int animationCounter = 0;
 static int actionsCounter = 0;
+static int static_actionsCounter = 0;
+
 static AppTimer *pet_animation_timer;
 static AppTimer *actions_animation_timer;
+static AppTimer *static_actions_animation_timer;
 static Pet *p;
 
 static void animate_pet_timer_callback(void *data);
 static void animate_actions_timer_callback(void *data);
+static void animate_static_actions_timer_callback(void *data);
 
 
 static void generate_icons(Window *window){
@@ -182,12 +187,6 @@ void generate_actions_scene(){
             actions_sprites[EAT][5] = NULL;
             actions_layer = bitmap_layer_create_safe(GRect(10,45,31, 31)); 
             break;
-        case 1:
-            actions_sprites[POOP][0] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_POOP1);
-            actions_sprites[POOP][1] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_POOP2);
-            actions_sprites[POOP][2] = NULL;
-            actions_layer = bitmap_layer_create_safe(GRect(100,45,35, 31)); 
-            break;
         default:
             break;
     }
@@ -227,6 +226,43 @@ void generate_actions(Window *window){
 
 }
 
+void generate_static_actions_scene(){
+    switch(0){
+        case 0:
+            actions_sprites[POOP][0] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_POOP1);
+            actions_sprites[POOP][1] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_POOP2);
+            actions_sprites[POOP][2] = NULL;
+            static_actions_layer = bitmap_layer_create_safe(GRect(100,60,31, 35)); 
+            break;
+        default:
+            break;
+    }
+
+    app_timer_register(ONE_SECOND, animate_static_actions_timer_callback, NULL);
+    
+}
+
+static void animate_static_actions_timer_callback(void *data) {
+
+    static_actionsCounter += 1;
+    if (actions_sprites[POOP][static_actionsCounter] == NULL) {
+        static_actionsCounter = 0;
+    }
+    bitmap_layer_set_bitmap(static_actions_layer, actions_sprites[POOP][static_actionsCounter]);
+    static_actions_animation_timer = app_timer_register(ONE_SECOND, animate_static_actions_timer_callback, NULL);
+    
+
+}
+
+void generate_static_actions(Window *window){
+
+    Layer *window_layer = window_get_root_layer(window);
+    generate_static_actions_scene();
+    layer_add_child(window_layer, bitmap_layer_get_layer(static_actions_layer));
+    layer_insert_above_sibling(bitmap_layer_get_layer(static_actions_layer), bitmap_layer_get_layer(pet_layer)) ;
+
+}
+
 void graphics_generate_pet_scene(Window *window, Pet *pet) {
     Layer *window_layer = window_get_root_layer(window);
     GRect bounds = layer_get_frame(window_layer);
@@ -252,9 +288,11 @@ void graphics_destroy_pet_scene() {
 	}
 	bitmap_layer_destroy_safe(pet_layer);
     bitmap_layer_destroy_safe(actions_layer);
+    bitmap_layer_destroy_safe(static_actions_layer);
 	destroy_icons();
 	app_timer_cancel(pet_animation_timer);
     app_timer_cancel(actions_animation_timer);
+    app_timer_cancel(static_actions_animation_timer);
 }
 
 static void animate_pet_timer_callback(void *data) {
