@@ -5,6 +5,7 @@
 #include "graphics/petscene.h"
 #include "graphics/clockscene.h"
 #include "graphics/gamescene.h"
+#include "graphics/statsscene.h"
 
 #define ITEM_MENU_DEFAULT 0
 #define ONE_SECOND 1000
@@ -13,6 +14,10 @@
 #define PET_SCENE 0
 #define CLOCK_SCENE 1
 #define GAME_SCENE 2
+#define STATS_SCENE_HEALTH 3
+#define STATS_SCENE_HAPPINESS 3
+#define STATS_SCENE_HUNGER 3
+#define STATS_SCENE_DISCIPLINE 3
 
 static int item_menu = ITEM_MENU_DEFAULT;
 static Pet p;
@@ -72,6 +77,22 @@ static void toggle_game() {
     }
 }
 
+static void toggle_stats() {
+    if (currentScene == PET_SCENE) {
+        //graphics_generate_stats_scene(window, &p, HEALTH_KEY, "Health");
+        //currentScene = STATS_SCENE_HEALTH;
+        graphics_generate_stats_scene(window, &p);
+        currentScene = STATS_SCENE_HEALTH;
+        graphics_destroy_pet_scene();
+    } else if (currentScene == STATS_SCENE_HEALTH) {
+        graphics_generate_pet_scene(window, &p);
+        update_menu(item_menu);
+        currentScene =  PET_SCENE;
+
+        graphics_destroy_stats_scene();
+    }
+}
+
 static void select_menu() {
     switch (item_menu) {
         case 0:
@@ -85,7 +106,6 @@ static void select_menu() {
             break;
         case 2:
             //PARK
-            // TODO: accelerometer minigame
             toggle_game();
             //pet_play(&p);
             break;
@@ -98,6 +118,7 @@ static void select_menu() {
             break;
         case 5:
             //HEALTH
+            toggle_stats();
             break;
         case 6:
             //DISCIPLINE

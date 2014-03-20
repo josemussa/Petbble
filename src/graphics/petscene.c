@@ -124,7 +124,7 @@ static void generatePet(int current_stage) {
         case EGG_STAGE:
         	pet_sprites[EGG_STAGE][0] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_EGG1);
         	pet_sprites[EGG_STAGE][1] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_EGG2);
-        	pet_sprites[EGG_STAGE][3] = NULL;
+        	pet_sprites[EGG_STAGE][2] = NULL;
             break;
         case BABITCHI_STAGE:
             // BABITCHI

@@ -170,6 +170,16 @@
         "type": "png",
         "name": "IMAGE_RETURN2",
         "file": "images/pet/return/2.png"
+      },
+      {
+        "type": "png",
+        "name": "HEART",
+        "file": "images/actions/status/heart.png"
+      },
+      {
+        "type": "png",
+        "name": "HEART_OUTLINE",
+        "file": "images/actions/status/heartoutline.png"
       }
     ]
   }

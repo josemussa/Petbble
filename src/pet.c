@@ -72,10 +72,10 @@ static int decrement_stat(Pet *p, int stat) {
 
 void pet_new(Pet *p) {
     p->fields[CURRENT_STAGE_KEY] = 0;
-    p->fields[HEALTH_KEY] = 3;
-    p->fields[HAPPINESS_KEY] = 3;
-    p->fields[HUNGER_KEY] = 3;
-    p->fields[DISCIPLINE_KEY] = 3;
+    p->fields[HEALTH_KEY] = 0;          // TODO change to 3
+    p->fields[HAPPINESS_KEY] = 1;       // TODO change to 3
+    p->fields[HUNGER_KEY] = 2;          // TODO change to 3
+    p->fields[DISCIPLINE_KEY] = 3;      // TODO change to 3
     p->fields[WEIGHT_KEY] = randRange(5, 10);
     p->fields[ENERGY_KEY] = 3;
     p->fields[SICK_KEY] = 0;
