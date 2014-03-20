@@ -1,7 +1,7 @@
 #include "pet.h"
 #include "pebble.h"
 
-#define MAX_STAT 3
+#define MAX_STAT 4
 
 #define MS_IN_DAY   86400000
 #define ONE_SECOND  1000
