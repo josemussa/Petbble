@@ -1,7 +1,7 @@
 #include "pet.h"
 #include "pebble.h"
 
-#define MAX_STAT 3
+#define MAX_STAT 4
 
 #define ONE_SECOND  1000
 #define ONE_MINUTE  (ONE_SECOND * 60)
