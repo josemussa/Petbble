@@ -3,6 +3,7 @@
 
 #define MAX_STAT 3
 
+#define MS_IN_DAY   86400000
 #define ONE_SECOND  1000
 #define ONE_MINUTE  (ONE_SECOND * 60)
 #define ONE_HOUR    (ONE_MINUTE * 60)
@@ -122,6 +123,12 @@ void pet_heal(Pet *p) {
     } else {
         decrement_stat(p, DISCIPLINE_KEY);
     }
+}
+
+// Tamogatch starts at age 1.  Ages at 1 year per day.
+int pet_calculate_age(Pet *p) {
+    int time_ms = time(NULL) - p->fields[TOTAL_AGE_KEY];
+    return 1 + time_ms / MS_IN_DAY;
 }
 
 static void update_stats(Pet *p, int i) {

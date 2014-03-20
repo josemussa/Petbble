@@ -36,3 +36,4 @@ void pet_feed(Pet *p);
 void pet_play(Pet *p);
 void pet_heal(Pet *p);
 int pet_check_status(Pet *p);
+int pet_calculate_age(Pet *p);

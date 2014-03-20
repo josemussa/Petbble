@@ -6,6 +6,7 @@
 #include "graphics/clockscene.h"
 #include "graphics/gamescene.h"
 #include "graphics/statsscene.h"
+#include "graphics/statsscene2.h"
 
 #define ITEM_MENU_DEFAULT 0
 #define ONE_SECOND 1000
@@ -14,10 +15,9 @@
 #define PET_SCENE 0
 #define CLOCK_SCENE 1
 #define GAME_SCENE 2
-#define STATS_SCENE_HEALTH 3
-#define STATS_SCENE_HAPPINESS 3
-#define STATS_SCENE_HUNGER 3
-#define STATS_SCENE_DISCIPLINE 3
+#define STATS_SCENE_0 3
+#define STATS_SCENE_1 4
+
 
 static int item_menu = ITEM_MENU_DEFAULT;
 static Pet p;
@@ -49,47 +49,44 @@ static void decrement_click_handler(ClickRecognizerRef recognizer, void *context
 
 static void toggle_lights() {
     if (currentScene == PET_SCENE) {
+        graphics_destroy_pet_scene();
         graphics_generate_clock_scene(window);
         currentScene = CLOCK_SCENE;
-
-        graphics_destroy_pet_scene();
     } else if (currentScene == CLOCK_SCENE) {
+        graphics_destroy_clock_scene();
         graphics_generate_pet_scene(window, &p);
         update_menu(item_menu);
         currentScene = PET_SCENE;
-
-        graphics_destroy_clock_scene();
     }
 }
 
 static void toggle_game() {
     if (currentScene == PET_SCENE) {
+        graphics_destroy_pet_scene();
         graphics_generate_game_scene(window);
         currentScene = GAME_SCENE;
-
-        graphics_destroy_pet_scene();
     } else if (currentScene == GAME_SCENE) {
+        graphics_destroy_game_scene();
         graphics_generate_pet_scene(window, &p);
         update_menu(item_menu);
         currentScene = PET_SCENE;
-
-        graphics_destroy_game_scene();
     }
 }
 
 static void toggle_stats() {
     if (currentScene == PET_SCENE) {
-        //graphics_generate_stats_scene(window, &p, HEALTH_KEY, "Health");
-        //currentScene = STATS_SCENE_HEALTH;
-        graphics_generate_stats_scene(window, &p);
-        currentScene = STATS_SCENE_HEALTH;
         graphics_destroy_pet_scene();
-    } else if (currentScene == STATS_SCENE_HEALTH) {
+        graphics_generate_stats_scene(window, &p);
+        currentScene = STATS_SCENE_0;
+    } else if (currentScene == STATS_SCENE_0) {
+        graphics_destroy_stats_scene();
+        graphics_generate_stats_scene2(window, &p);
+        currentScene = STATS_SCENE_1;
+    } else if (currentScene == STATS_SCENE_1) {
+        graphics_destroy_stats_scene2();
         graphics_generate_pet_scene(window, &p);
         update_menu(item_menu);
-        currentScene =  PET_SCENE;
-
-        graphics_destroy_stats_scene();
+        currentScene = PET_SCENE;
     }
 }
 
@@ -169,6 +166,7 @@ static void accel_tap_handler(AccelAxisType axis, int32_t direction) {
 
 static void window_load(Window *me){
     currentScene = PET_SCENE;
+    // currentScene = STATS_SCENE_1;
     window = me;
     if (!pet_load_state(&p)) {
         pet_new(&p);
@@ -181,6 +179,7 @@ static void window_load(Window *me){
     pet_status_timer = app_timer_register(TIMER_STEP_MS, update_pet_timer_callback, NULL);
     accel_tap_service_subscribe(&accel_tap_handler);
     update_menu(item_menu);
+    // graphics_generate_stats_scene(window, &p, 1);
 }
 
 static void destroy_current_scene() {
@@ -193,6 +192,12 @@ static void destroy_current_scene() {
             break;
         case GAME_SCENE:
             graphics_destroy_game_scene();
+            break;
+        case STATS_SCENE_0:
+            graphics_destroy_stats_scene();
+            break;
+        case STATS_SCENE_1:
+            graphics_destroy_stats_scene2();
             break;
         default:
             app_log(0, "menu.c", 170, "Switch case in destroy_current_scene() does not exist.");

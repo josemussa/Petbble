@@ -287,12 +287,20 @@ void graphics_destroy_pet_scene() {
 		deallocate_pet_sprite(p->fields[CURRENT_STAGE_KEY]);
 	}
 	bitmap_layer_destroy_safe(pet_layer);
-    bitmap_layer_destroy_safe(actions_layer);
-    bitmap_layer_destroy_safe(static_actions_layer);
+    if (actions_layer != NULL) {
+        bitmap_layer_destroy_safe(actions_layer);
+    }
+    if (static_actions_layer != NULL) {
+        bitmap_layer_destroy_safe(static_actions_layer);
+    }
 	destroy_icons();
 	app_timer_cancel(pet_animation_timer);
-    app_timer_cancel(actions_animation_timer);
-    app_timer_cancel(static_actions_animation_timer);
+    if (actions_animation_timer != NULL) {
+        app_timer_cancel(actions_animation_timer);
+    }
+    if (static_actions_animation_timer != NULL) {
+        app_timer_cancel(static_actions_animation_timer);
+    }
 }
 
 static void animate_pet_timer_callback(void *data) {

@@ -1,4 +1,4 @@
-#include "statsscene.h"
+#include "statsscene2.h"
 #include "graphics.h"
 #include "pet.h"
 
@@ -9,6 +9,8 @@ static BitmapLayer *heart_layer[MAX_ROW][3];
 static GBitmap *heart;
 static GBitmap *heart_outline;
 static TextLayer *text[MAX_ROW];
+static char *weight = NULL;
+static char *age = NULL;
 
 static void init_hearts(Pet *p, int key, int row) {
 	Layer *window_layer = window_get_root_layer(window);
@@ -42,24 +44,39 @@ static void init_text(char* stat, int row) {
 	layer_add_child(window_layer, text_layer_get_layer(text[row]));
 }
 
-void graphics_generate_stats_scene(Window *w, Pet *p) {
+void graphics_generate_stats_scene2(Window *w, Pet *p) {
 	window = w;
 	heart = gbitmap_create_with_resource_safe(RESOURCE_ID_HEART);
 	heart_outline = gbitmap_create_with_resource_safe(RESOURCE_ID_HEART_OUTLINE);
-	init_text("Health", 0);
-	init_hearts(p, HEALTH_KEY, 1);
-	
-	init_text("Happiness", 2);
-	init_hearts(p, HAPPINESS_KEY, 3);
+	init_text("Energy", 0);
+	init_hearts(p, ENERGY_KEY, 1);
 
-	init_text("Satiation", 4);
-	init_hearts(p, HUNGER_KEY, 5);
+	int weight_int = p->fields[WEIGHT_KEY];
+	if (weight == NULL) {
+		// weight = malloc(weight_int % 10 + 1);	// number of digits in weight, plus one for null termination
+		weight = malloc(10);		// This is really hacky and I don't like this solution, but I am getting really weird behavior when trying
+									// to free strings that were used in text layers.
+	}
+	snprintf(weight, weight_int % 10 + 1, "%d", weight_int);
 
-	init_text("Discipline", 6);
-	init_hearts(p, DISCIPLINE_KEY, 7);
+	weight[weight_int % 10 + 1] = '\0';
+
+	init_text("Weight", 2);
+	init_text(weight, 3);
+
+	int age_in_years = pet_calculate_age(p);
+	if (age == NULL) {
+		// age = malloc(age_in_years % 10 + 1);
+		age = malloc(10);
+	}
+	snprintf(age, age_in_years % 10 + 1, "%d", age_in_years);
+	age[age_in_years % 10 + 1] = '\0';
+
+	init_text("Age", 4);
+	init_text(age, 5);
 }
 
-void graphics_destroy_stats_scene() {
+void graphics_destroy_stats_scene2() {
 	gbitmap_destroy_safe(heart);
 	gbitmap_destroy_safe(heart_outline);
 	for (int i = 0; i < MAX_ROW; i++) {
@@ -72,4 +89,10 @@ void graphics_destroy_stats_scene() {
 			text_layer_destroy(text[i]);
 		}
 	}
+	// if (weight != NULL) {			// Leaking memory, but app is crashing when I try to free these for some reason.
+	// 	free(weight);
+	// }
+	// if (age != NULL) {
+	// 	free(age);
+	// }
 }
