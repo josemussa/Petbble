@@ -180,6 +180,41 @@
         "type": "png",
         "name": "HEART_OUTLINE",
         "file": "images/actions/status/heartoutline.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_POOP1",
+        "file": "images/actions/poop/1.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_POOP2",
+        "file": "images/actions/poop/2.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_EAT1",
+        "file": "images/actions/eat/1.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_EAT2",
+        "file": "images/actions/eat/2.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_EAT3",
+        "file": "images/actions/eat/3.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_EAT4",
+        "file": "images/actions/eat/4.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_EAT5",
+        "file": "images/actions/eat/5.png"
       }
     ]
   }
