@@ -1,7 +1,7 @@
 #ifndef PET_H
 #define PET_H
 
-#define NUM_PET_FIELDS 11
+#define NUM_PET_FIELDS 13
 
 #define NUM_PET_STAGES 5
 #define EGG_STAGE 0
@@ -22,6 +22,8 @@
 #define TOTAL_AGE_KEY 8
 #define CURRENT_STAGE_AGE_KEY 9
 #define LAST_OPEN_KEY 10
+#define SLEEPING_KEY 11
+#define POOP_KEY 12
 
 typedef struct {
     int fields[NUM_PET_FIELDS];
@@ -33,7 +35,12 @@ int pet_load_state(Pet *p);
 void pet_save_state(Pet *p);
 void pet_new(Pet *p);
 void pet_feed(Pet *p);
-void pet_play(Pet *p);
+int pet_attempt_play(Pet *p);
+void pet_play(Pet *p, int score);
 void pet_heal(Pet *p);
+void pet_sleep(Pet *p);
+void pet_wake_up(Pet *p);
+void pet_discipline(Pet *p);
+void pet_bath(Pet *p);
 int pet_check_status(Pet *p);
 int pet_calculate_age(Pet *p);

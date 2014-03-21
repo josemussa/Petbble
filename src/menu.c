@@ -49,10 +49,12 @@ static void decrement_click_handler(ClickRecognizerRef recognizer, void *context
 
 static void toggle_lights() {
     if (currentScene == PET_SCENE) {
+        pet_sleep(&p);
         graphics_destroy_pet_scene();
         graphics_generate_clock_scene(window);
         currentScene = CLOCK_SCENE;
     } else if (currentScene == CLOCK_SCENE) {
+        pet_wake_up(&p);
         graphics_destroy_clock_scene();
         graphics_generate_pet_scene(window, &p);
         update_menu(item_menu);
@@ -62,14 +64,17 @@ static void toggle_lights() {
 
 static void toggle_game() {
     if (currentScene == PET_SCENE) {
-        graphics_destroy_pet_scene();
-        graphics_generate_game_scene(window);
-        currentScene = GAME_SCENE;
+        if (pet_attempt_play(&p)) {
+            graphics_destroy_pet_scene();
+            graphics_generate_game_scene(window);
+            currentScene = GAME_SCENE;
+        }
     } else if (currentScene == GAME_SCENE) {
-        graphics_destroy_game_scene();
+        int score = graphics_destroy_game_scene();
         graphics_generate_pet_scene(window, &p);
         update_menu(item_menu);
         currentScene = PET_SCENE;
+        pet_play(&p, score);
     }
 }
 
@@ -99,12 +104,12 @@ static void select_menu() {
             break;
         case 1:
             //BULB
+            // sleep / wakeup function called in toggle_lights
             toggle_lights();
             break;
         case 2:
             //PARK
             toggle_game();
-            //pet_play(&p);
             break;
         case 3:
             //PILL
@@ -114,6 +119,7 @@ static void select_menu() {
         case 4:
             //BATH
             generate_actions(window,3);
+            pet_bath(&p);
             break;
         case 5:
             //HEALTH
@@ -123,6 +129,7 @@ static void select_menu() {
         case 6:
             //DISCIPLINE
             generate_actions(window,2);
+            pet_discipline(&p);
             break;
         case 7:
             //CALL

@@ -83,15 +83,21 @@ void pet_new(Pet *p) {
     p->fields[TOTAL_AGE_KEY] = time(NULL);
     p->fields[CURRENT_STAGE_AGE_KEY] = time(NULL);
     p->fields[LAST_OPEN_KEY] = time(NULL);
+    p->fields[SLEEPING_KEY] = 0;
+    p->fields[POOP_KEY] = 0;
     for (int i = 0; i < NUM_PET_FIELDS; i++) {
         persist_delete(i);
     }
 }
 
+// Pet Actions
+
 void pet_feed(Pet *p) {
     p->fields[WEIGHT_KEY] = p->fields[WEIGHT_KEY] + 1;
+    // Attempt to increase satiation
     if (increment_stat(p, HUNGER_KEY)) {
         return;
+    // If already full, then decrease health
     } else if (decrement_stat(p, HEALTH_KEY)) {
         return;
     } else {
@@ -100,20 +106,17 @@ void pet_feed(Pet *p) {
     }
 }
 
-void pet_play(Pet *p) {
-    // Can only play if positive energy, and not sick.
-    if (p->fields[ENERGY_KEY] > 0 && !p->fields[SICK_KEY]) {
-        decrement_stat(p, ENERGY_KEY);
+int pet_attempt_play(Pet *p) {
+    return decrement_stat(p, ENERGY_KEY);
+}
+
+void pet_play(Pet *p, int score) {
+    // Lose 1 pound of weight for each point
+    for (int i = 0; i < score; i++) {
         decrement_stat(p, WEIGHT_KEY);
+    }
+    for (int i = 0; i < score / 10; i++) {
         increment_stat(p, HAPPINESS_KEY);
-        increment_stat(p, HEALTH_KEY);
-    } else if (decrement_stat(p, HEALTH_KEY)) {
-        return;
-    } else if (!p->fields[SICK_KEY]) {
-        p->fields[SICK_KEY] = 1;
-    } else {
-        // If you attempt to play with 0 energy, 0 health, and sick, you die :(
-        pet_die(p);
     }
 }
 
@@ -122,6 +125,33 @@ void pet_heal(Pet *p) {
         p->fields[SICK_KEY] = 0;
     } else {
         decrement_stat(p, DISCIPLINE_KEY);
+    }
+}
+
+void pet_sleep(Pet *p) {
+    p->fields[SLEEPING_KEY] = 1;
+}
+
+void pet_wake_up(Pet *p) {
+    p->fields[SLEEPING_KEY] = 1;
+}
+
+void pet_bath(Pet *p) {
+    if (p->fields[POOP_KEY] > 0) {
+        p->fields[POOP_KEY] = 0;
+        increment_stat(p, HAPPINESS_KEY);
+    } else {
+        decrement_stat(p, HAPPINESS_KEY);
+    }
+}
+
+void pet_discipline(Pet *p) {
+    if (p->fields[POOP_KEY] == 0) {
+        decrement_stat(p, DISCIPLINE_KEY);
+    } else if (p->fields[POOP_KEY] == 1) {
+        increment_stat(p, DISCIPLINE_KEY);
+        // Change key to 2 so that you can only discipline once per poop.
+        p->fields[POOP_KEY] = 2;
     }
 }
 
@@ -148,8 +178,9 @@ static void update_stats(Pet *p, int i) {
     if (rand() % i == 0) {
         decrement_stat(p, WEIGHT_KEY);
     }
-    if (rand() % i == 0) {
-        decrement_stat(p, ENERGY_KEY);
+    // Increase energy while asleep
+    if (p->fields[SLEEPING_KEY] && (rand() % i == 0)) {
+        increment_stat(p, ENERGY_KEY);
     }
     // Hungry and unhealthy leads to greater chance of getting sick.
     if (rand() % (5 * i * (p->fields[HEALTH_KEY] + p->fields[HUNGER_KEY]))) {

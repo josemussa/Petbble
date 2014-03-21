@@ -139,6 +139,7 @@ void graphics_generate_game_scene(Window *w) {
 	window = w;
 	Layer *window_layer = window_get_root_layer(window);
   	window_frame = layer_get_frame(window_layer);
+  	score = 0;
 
   	disc_layer = layer_create(window_frame);
 
@@ -151,8 +152,9 @@ void graphics_generate_game_scene(Window *w) {
   	layer_add_child(window_layer, disc_layer);
 }
 
-void graphics_destroy_game_scene() {
+int graphics_destroy_game_scene() {
 	layer_destroy(disc_layer);
 	app_timer_cancel(timer);
 	window_set_background_color(window, GColorWhite);
+	return score;
 }
