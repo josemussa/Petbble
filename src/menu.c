@@ -95,7 +95,7 @@ static void select_menu() {
         case 0:
             //PIZZA
             pet_feed(&p);
-            generate_actions(window);
+            generate_actions(window,0);
             break;
         case 1:
             //BULB
@@ -109,6 +109,7 @@ static void select_menu() {
         case 3:
             //PILL
             pet_heal(&p);
+            generate_actions(window,1);
             break;
         case 4:
             //BATH
@@ -117,9 +118,11 @@ static void select_menu() {
         case 5:
             //HEALTH
             toggle_stats();
+
             break;
         case 6:
             //DISCIPLINE
+            generate_actions(window,2);
             break;
         case 7:
             //CALL

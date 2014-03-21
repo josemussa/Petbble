@@ -9,7 +9,10 @@
 #define NUM_ACTIONS 5
 
 #define EAT 0
-#define POOP 1
+#define PILL 1
+#define DISCIPLINE 2
+
+#define POOP 0
 
 static BitmapLayer *pizza_layer;
 static BitmapLayer *bulb_layer;
@@ -38,6 +41,7 @@ static GBitmap *actions_sprites[NUM_ACTIONS][MAX_ANIMATION_FRAMES + 1];
 static int animationCounter = 0;
 static int actionsCounter = 0;
 static int static_actionsCounter = 0;
+static int actions = EAT;
 
 static AppTimer *pet_animation_timer;
 static AppTimer *actions_animation_timer;
@@ -175,18 +179,34 @@ static void generatePet(int current_stage) {
     }
 }
 
-void generate_actions_scene(){
+void generate_actions_scene(int receive_action){
+    actions = receive_action;
     actionsCounter = 0;
-    switch(0){
-        case 0:
+    switch(receive_action){
+        case EAT:
             actions_sprites[EAT][0] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_EAT1);
             actions_sprites[EAT][1] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_EAT2);
             actions_sprites[EAT][2] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_EAT3);
             actions_sprites[EAT][3] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_EAT4);
             actions_sprites[EAT][4] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_EAT5);
             actions_sprites[EAT][5] = NULL;
-            actions_layer = bitmap_layer_create_safe(GRect(10,45,31, 31)); 
+            actions_layer = bitmap_layer_create_safe(GRect(10,45,31,31)); 
             break;
+        case PILL:
+            actions_sprites[PILL][0] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_PILL1);
+            actions_sprites[PILL][1] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_PILL2);
+            actions_sprites[PILL][2] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_PILL3);
+            actions_sprites[PILL][3] = NULL;
+            actions_layer = bitmap_layer_create_safe(GRect(10,45,25,25));
+            break; 
+        case DISCIPLINE:
+            actions_sprites[DISCIPLINE][0] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_DISC1);
+            actions_sprites[DISCIPLINE][1] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_DISC2);
+            actions_sprites[DISCIPLINE][2] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_DISC1);
+            actions_sprites[DISCIPLINE][3] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_DISC2);
+            actions_sprites[DISCIPLINE][4] = NULL;
+            actions_layer = bitmap_layer_create_safe(GRect(100,60,35,35));
+            break; 
         default:
             break;
     }
@@ -204,23 +224,24 @@ void stop_actions_scene(){
 
 static void animate_actions_timer_callback(void *data) {
 
-    
-    if (actions_sprites[EAT][actionsCounter] == NULL) {
+    if (actions_sprites[actions][actionsCounter] == NULL) {
         stop_actions_scene();
     }else{
         actions_animation_timer = app_timer_register(ONE_SECOND, animate_actions_timer_callback, NULL);
     }
 
-    bitmap_layer_set_bitmap(actions_layer, actions_sprites[EAT][actionsCounter]);
+    bitmap_layer_set_bitmap(actions_layer, actions_sprites[actions][actionsCounter]);
     actionsCounter += 1;
     
 
 }
 
-void generate_actions(Window *window){
-
+void generate_actions(Window *window, int actions){
+    if (actions_layer != NULL) {
+        stop_actions_scene();
+    }
     Layer *window_layer = window_get_root_layer(window);
-    generate_actions_scene();
+    generate_actions_scene(actions);
     layer_add_child(window_layer, bitmap_layer_get_layer(actions_layer));
     layer_insert_above_sibling(bitmap_layer_get_layer(actions_layer), bitmap_layer_get_layer(pet_layer)) ;
 

@@ -215,6 +215,31 @@
         "type": "png",
         "name": "IMAGE_EAT5",
         "file": "images/actions/eat/5.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_PILL1",
+        "file": "images/actions/pill/1.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_PILL2",
+        "file": "images/actions/pill/2.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_PILL3",
+        "file": "images/actions/pill/3.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_DISC1",
+        "file": "images/actions/discipline/1.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_DISC2",
+        "file": "images/actions/discipline/2.png"
       }
     ]
   }
