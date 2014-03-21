@@ -113,7 +113,8 @@ static void select_menu() {
             break;
         case 4:
             //BATH
-            generate_static_actions(window); //im just using this button for an example
+            generate_actions(window,3);
+            //generate_static_actions(window); //im just using this button for an example
             break;
         case 5:
             //HEALTH

@@ -241,6 +241,17 @@
         "name": "IMAGE_DISC2",
         "file": "images/actions/discipline/2.png"
       }
+      ,
+      {
+        "type": "png",
+        "name": "IMAGE_SHOWER1",
+        "file": "images/actions/shower/1.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_SHOWER2",
+        "file": "images/actions/shower/2.png"
+      }
     ]
   }
 }
