@@ -50,6 +50,8 @@ static AppTimer *pet_animation_timer;
 static AppTimer *actions_animation_timer;
 static AppTimer *static_actions_animation_timer;
 static Pet *p;
+static bool static_animation = false;
+static bool actions_animation = false;
 
 static void animate_pet_timer_callback(void *data);
 static void animate_actions_timer_callback(void *data);
@@ -139,6 +141,22 @@ static void deallocate_pet_sprite(int previous_stage) {
 	}
 }
 
+static void deallocate_static_actions_sprite() {
+    for (int i = 0; i < MAX_ANIMATION_FRAMES; i++) {
+        if (static_actions_sprites[POOP][i]) {
+            gbitmap_destroy_safe(static_actions_sprites[POOP][i]);
+        }
+    }
+}
+
+static void deallocate_actions_sprite() {
+    for (int i = 0; i < MAX_ANIMATION_FRAMES; i++) {
+        if (actions_sprites[POOP][i]) {
+            gbitmap_destroy_safe(actions_sprites[POOP][i]);
+        }
+    }
+}
+
 static void generatePet(int current_stage) {
     switch (current_stage) {
         case EGG_STAGE:
@@ -182,7 +200,7 @@ static void generatePet(int current_stage) {
     }
 }
 
-void generate_actions_scene(Window *window, int receive_action){
+void generate_actions_scene(int receive_action){
     actions = receive_action;
     actionsCounter = 0;
     switch(receive_action){
@@ -211,14 +229,10 @@ void generate_actions_scene(Window *window, int receive_action){
             actions_layer = bitmap_layer_create_safe(GRect(10,45,35,35));
             break; 
         case SHOWER:
-            actions_sprites[SHOWER][0] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_SHOWER1);
-            actions_sprites[SHOWER][1] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_SHOWER2);
-            actions_sprites[SHOWER][2] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_SHOWER1);
-            actions_sprites[SHOWER][3] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_SHOWER2);
-            actions_sprites[SHOWER][4] = NULL;
-            Layer *window_layer = window_get_root_layer(window);
-            GRect bounds = layer_get_frame(window_layer);
-            actions_layer = bitmap_layer_create_safe(bounds);
+            // actions_sprites[SHOWER][0] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_SHOWER1);
+            // actions_sprites[SHOWER][1] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_SHOWER2);
+            actions_sprites[SHOWER][2] = NULL;
+            actions_layer = bitmap_layer_create_safe(GRect(0,0,135,69));
             break; 
         default:
             break;
@@ -232,9 +246,11 @@ void stop_actions_scene(){
     bitmap_layer_destroy_safe(actions_layer);
     app_timer_cancel(actions_animation_timer);
     actionsCounter = 0;
+    actions_animation = false;
 }
 
 static void animate_actions_timer_callback(void *data) {
+    actions_animation = true;
     bitmap_layer_set_bitmap(actions_layer, actions_sprites[actions][actionsCounter]);
 
     int lastActionsCounter = actionsCounter - 1;
@@ -252,14 +268,26 @@ static void animate_actions_timer_callback(void *data) {
 }
 
 void generate_actions(Window *window, int actions){
-    if (actions_layer != NULL) {
-        stop_actions_scene();
-    }
-    Layer *window_layer = window_get_root_layer(window);
-    generate_actions_scene(window,actions);
-    layer_add_child(window_layer, bitmap_layer_get_layer(actions_layer));
-    layer_insert_above_sibling(bitmap_layer_get_layer(actions_layer), bitmap_layer_get_layer(pet_layer)) ;
+    if(actions_animation == false){
+       actions_animation = true;
 
+        if (static_animation == true) {
+            deallocate_static_actions_sprite();
+            bitmap_layer_destroy_safe(static_actions_layer);
+            app_timer_cancel(static_actions_animation_timer);
+            static_animation = false;
+        }
+        
+        if (actions_layer != NULL) {
+            stop_actions_scene();
+        }
+        if (static_animation == false) {
+            Layer *window_layer = window_get_root_layer(window);
+            generate_actions_scene(actions);
+            layer_add_child(window_layer, bitmap_layer_get_layer(actions_layer));
+            layer_insert_above_sibling(bitmap_layer_get_layer(actions_layer), bitmap_layer_get_layer(pet_layer)) ;
+        }
+    }
 }
 
 void generate_static_actions_scene(){
@@ -292,7 +320,7 @@ static void animate_static_actions_timer_callback(void *data) {
 }
 
 void generate_static_actions(Window *window){
-
+    static_animation = true;
     Layer *window_layer = window_get_root_layer(window);
     generate_static_actions_scene();
     layer_add_child(window_layer, bitmap_layer_get_layer(static_actions_layer));
@@ -300,13 +328,7 @@ void generate_static_actions(Window *window){
 
 }
 
-static void deallocate_static_actions_sprite() {
-    for (int i = 0; i < MAX_ANIMATION_FRAMES; i++) {
-        if (static_actions_sprites[POOP][i]) {
-            gbitmap_destroy_safe(static_actions_sprites[POOP][i]);
-        }
-    }
-}
+
 
 void graphics_generate_pet_scene(Window *window, Pet *pet) {
     Layer *window_layer = window_get_root_layer(window);
@@ -333,6 +355,7 @@ void graphics_destroy_pet_scene() {
 	}
 	bitmap_layer_destroy_safe(pet_layer);
     if (actions_layer != NULL) {
+        deallocate_actions_sprite();
         bitmap_layer_destroy_safe(actions_layer);
     }
     if (static_actions_layer != NULL) {
