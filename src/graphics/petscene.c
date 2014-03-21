@@ -7,6 +7,7 @@
 #define ONE_SECOND 1000
 #define ANIMATION_STEP_MS (ONE_SECOND * 1)
 #define NUM_ACTIONS 5
+#define NUM_STATIC_ACTIONS 5
 
 #define EAT 0
 #define PILL 1
@@ -39,6 +40,7 @@ static BitmapLayer *static_actions_layer;
 #define MAX_ANIMATION_FRAMES 10
 static GBitmap *pet_sprites[NUM_PET_STAGES][MAX_ANIMATION_FRAMES + 1];
 static GBitmap *actions_sprites[NUM_ACTIONS][MAX_ANIMATION_FRAMES + 1];
+static GBitmap *static_actions_sprites[NUM_STATIC_ACTIONS][MAX_ANIMATION_FRAMES + 1];
 static int animationCounter = 0;
 static int actionsCounter = 0;
 static int static_actionsCounter = 0;
@@ -206,7 +208,7 @@ void generate_actions_scene(Window *window, int receive_action){
             actions_sprites[DISCIPLINE][2] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_DISC1);
             actions_sprites[DISCIPLINE][3] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_DISC2);
             actions_sprites[DISCIPLINE][4] = NULL;
-            actions_layer = bitmap_layer_create_safe(GRect(100,60,35,35));
+            actions_layer = bitmap_layer_create_safe(GRect(10,45,35,35));
             break; 
         case SHOWER:
             actions_sprites[SHOWER][0] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_SHOWER1);
@@ -263,9 +265,9 @@ void generate_actions(Window *window, int actions){
 void generate_static_actions_scene(){
     switch(0){
         case 0:
-            actions_sprites[POOP][0] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_POOP1);
-            actions_sprites[POOP][1] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_POOP2);
-            actions_sprites[POOP][2] = NULL;
+            static_actions_sprites[POOP][0] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_POOP1);
+            static_actions_sprites[POOP][1] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_POOP2);
+            static_actions_sprites[POOP][2] = NULL;
             static_actions_layer = bitmap_layer_create_safe(GRect(100,60,31, 35)); 
             break;
         default:
@@ -277,12 +279,13 @@ void generate_static_actions_scene(){
 }
 
 static void animate_static_actions_timer_callback(void *data) {
-
-    static_actionsCounter += 1;
-    if (actions_sprites[POOP][static_actionsCounter] == NULL) {
+    
+    if (static_actions_sprites[POOP][static_actionsCounter] == NULL) {
         static_actionsCounter = 0;
     }
-    bitmap_layer_set_bitmap(static_actions_layer, actions_sprites[POOP][static_actionsCounter]);
+    bitmap_layer_set_bitmap(static_actions_layer, static_actions_sprites[POOP][static_actionsCounter]);
+    static_actionsCounter += 1;
+
     static_actions_animation_timer = app_timer_register(ONE_SECOND, animate_static_actions_timer_callback, NULL);
     
 
@@ -295,6 +298,14 @@ void generate_static_actions(Window *window){
     layer_add_child(window_layer, bitmap_layer_get_layer(static_actions_layer));
     layer_insert_above_sibling(bitmap_layer_get_layer(static_actions_layer), bitmap_layer_get_layer(pet_layer)) ;
 
+}
+
+static void deallocate_static_actions_sprite() {
+    for (int i = 0; i < MAX_ANIMATION_FRAMES; i++) {
+        if (static_actions_sprites[POOP][i]) {
+            gbitmap_destroy_safe(static_actions_sprites[POOP][i]);
+        }
+    }
 }
 
 void graphics_generate_pet_scene(Window *window, Pet *pet) {
@@ -325,6 +336,7 @@ void graphics_destroy_pet_scene() {
         bitmap_layer_destroy_safe(actions_layer);
     }
     if (static_actions_layer != NULL) {
+        deallocate_static_actions_sprite();
         bitmap_layer_destroy_safe(static_actions_layer);
     }
 	destroy_icons();

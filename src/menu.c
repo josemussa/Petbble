@@ -114,7 +114,6 @@ static void select_menu() {
         case 4:
             //BATH
             generate_actions(window,3);
-            //generate_static_actions(window); //im just using this button for an example
             break;
         case 5:
             //HEALTH
@@ -127,6 +126,7 @@ static void select_menu() {
             break;
         case 7:
             //CALL
+            generate_static_actions(window); //im just using this button for an example
             break;
         default:
             app_log(0, "menu.c", 103, "Switch case in select_menu() does not exist.");
