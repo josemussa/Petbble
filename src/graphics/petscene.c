@@ -233,6 +233,11 @@ void stop_actions_scene(){
 static void animate_actions_timer_callback(void *data) {
     bitmap_layer_set_bitmap(actions_layer, actions_sprites[actions][actionsCounter]);
 
+    int lastActionsCounter = actionsCounter - 1;
+    if (lastActionsCounter >= 0){
+        gbitmap_destroy_safe(actions_sprites[actions][lastActionsCounter]);
+    }
+
     if (actions_sprites[actions][actionsCounter] == NULL) {
         stop_actions_scene();
     }else{
@@ -241,10 +246,7 @@ static void animate_actions_timer_callback(void *data) {
 
    
     
-    int lastActionsCounter = actionsCounter - 1;
-    if (lastActionsCounter > 0){
-        gbitmap_destroy_safe(actions_sprites[actions][lastActionsCounter]);
-    }
+  
     actionsCounter += 1;
 }
 
