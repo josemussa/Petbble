@@ -214,7 +214,9 @@ void generate_actions_scene(Window *window, int receive_action){
             actions_sprites[SHOWER][2] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_SHOWER1);
             actions_sprites[SHOWER][3] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_SHOWER2);
             actions_sprites[SHOWER][4] = NULL;
-            actions_layer = bitmap_layer_create_safe(GRect(10,45,25,25));
+            Layer *window_layer = window_get_root_layer(window);
+            GRect bounds = layer_get_frame(window_layer);
+            actions_layer = bitmap_layer_create_safe(bounds);
             break; 
         default:
             break;
@@ -244,9 +246,6 @@ static void animate_actions_timer_callback(void *data) {
         actions_animation_timer = app_timer_register(ONE_SECOND, animate_actions_timer_callback, NULL);
     }
 
-   
-    
-  
     actionsCounter += 1;
 }
 
