@@ -51,7 +51,6 @@ static AppTimer *actions_animation_timer;
 static AppTimer *static_actions_animation_timer;
 static Pet *p;
 static bool static_animation = false;
-static bool actions_animation = false;
 
 static void animate_pet_timer_callback(void *data);
 static void animate_actions_timer_callback(void *data);
@@ -236,58 +235,46 @@ void generate_actions_scene(int receive_action){
             break; 
         default:
             break;
-    }
-
-    app_timer_register(ONE_SECOND, animate_actions_timer_callback, NULL);
-    
+    }    
 }
 
-void stop_actions_scene(){
+void stop_actions_scene() {
     bitmap_layer_destroy_safe(actions_layer);
     app_timer_cancel(actions_animation_timer);
     actionsCounter = 0;
-    actions_animation = false;
+    for (int i = 0 ; i < MAX_ANIMATION_FRAMES; i++) {
+        if (actions_sprites[actions][i] != NULL) {
+            gbitmap_destroy_safe(actions_sprites[actions][i]);
+        }
+    }
 }
 
 static void animate_actions_timer_callback(void *data) {
-    actions_animation = true;
-    bitmap_layer_set_bitmap(actions_layer, actions_sprites[actions][actionsCounter]);
-
-    int lastActionsCounter = actionsCounter - 1;
-    if (lastActionsCounter >= 0){
-        gbitmap_destroy_safe(actions_sprites[actions][lastActionsCounter]);
-    }
-
+    actionsCounter += 1;
     if (actions_sprites[actions][actionsCounter] == NULL) {
         stop_actions_scene();
-    }else{
+    } else {
         actions_animation_timer = app_timer_register(ONE_SECOND, animate_actions_timer_callback, NULL);
     }
-
-    actionsCounter += 1;
+    bitmap_layer_set_bitmap(actions_layer, actions_sprites[actions][actionsCounter]);
 }
 
-void generate_actions(Window *window, int actions){
-    if(actions_animation == false){
-       actions_animation = true;
+void generate_actions(Window *window, int actions) {
+    stop_actions_scene();
 
-        if (static_animation == true) {
-            deallocate_static_actions_sprite();
-            bitmap_layer_destroy_safe(static_actions_layer);
-            app_timer_cancel(static_actions_animation_timer);
-            static_animation = false;
-        }
-        
-        if (actions_layer != NULL) {
-            stop_actions_scene();
-        }
-        if (static_animation == false) {
-            Layer *window_layer = window_get_root_layer(window);
-            generate_actions_scene(actions);
-            layer_add_child(window_layer, bitmap_layer_get_layer(actions_layer));
-            layer_insert_above_sibling(bitmap_layer_get_layer(actions_layer), bitmap_layer_get_layer(pet_layer)) ;
-        }
-    }
+    // if (static_animation == true) {
+    //     deallocate_static_actions_sprite();
+    //     bitmap_layer_destroy_safe(static_actions_layer);
+    //     app_timer_cancel(static_actions_animation_timer);
+    //     static_animation = false;
+    // }
+    
+    Layer *window_layer = window_get_root_layer(window);
+    generate_actions_scene(actions);
+    layer_add_child(window_layer, bitmap_layer_get_layer(actions_layer));
+    layer_insert_above_sibling(bitmap_layer_get_layer(actions_layer), bitmap_layer_get_layer(pet_layer));
+    app_timer_register(ONE_SECOND, animate_actions_timer_callback, NULL);
+    bitmap_layer_set_bitmap(actions_layer, actions_sprites[actions][0]);
 }
 
 void generate_static_actions_scene(){
@@ -328,8 +315,6 @@ void generate_static_actions(Window *window){
 
 }
 
-
-
 void graphics_generate_pet_scene(Window *window, Pet *pet) {
     Layer *window_layer = window_get_root_layer(window);
     GRect bounds = layer_get_frame(window_layer);
@@ -340,13 +325,16 @@ void graphics_generate_pet_scene(Window *window, Pet *pet) {
     generatePet(p->fields[CURRENT_STAGE_KEY]);
     generate_icons(window);
     
-    
     // CREATE PET
     pet_layer = bitmap_layer_create_safe(bounds);
     bitmap_layer_set_alignment(pet_layer, GAlignCenter);
     layer_add_child(window_layer, bitmap_layer_get_layer(pet_layer));
+    bitmap_layer_set_bitmap(pet_layer, pet_sprites[p->fields[CURRENT_STAGE_KEY]][0]);
     app_timer_register(800, animate_pet_timer_callback, NULL);
 
+    animationCounter = 0;
+    actionsCounter = 0;
+    static_actionsCounter = 0;
 }
 
 void graphics_destroy_pet_scene() {
@@ -370,6 +358,7 @@ void graphics_destroy_pet_scene() {
     if (static_actions_animation_timer != NULL) {
         app_timer_cancel(static_actions_animation_timer);
     }
+    stop_actions_scene();
 }
 
 static void animate_pet_timer_callback(void *data) {

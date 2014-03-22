@@ -22,8 +22,10 @@
 static int item_menu = ITEM_MENU_DEFAULT;
 static Pet p;
 static AppTimer *pet_status_timer;
+static AppTimer *enable_menu_timer;
 static Window *window;
 static int currentScene;
+static int select_enabled = 1;
 
 static void increment_click_handler(ClickRecognizerRef recognizer, void *context) {
     if (currentScene == PET_SCENE) {
@@ -95,50 +97,61 @@ static void toggle_stats() {
     }
 }
 
+static void enable_menu_callback() {
+    app_log(0, "menu.c", 105, "Select_enabled changing back to true.");
+    select_enabled = 1;
+}
+
 static void select_menu() {
-    switch (item_menu) {
-        case 0:
-            //PIZZA
-            pet_feed(&p);
-            generate_actions(window,0);
-            break;
-        case 1:
-            //BULB
-            // sleep / wakeup function called in toggle_lights
-            toggle_lights();
-            break;
-        case 2:
-            //PARK
-            toggle_game();
-            break;
-        case 3:
-            //PILL
-            pet_heal(&p);
-            generate_actions(window,1);
-            break;
-        case 4:
-            //BATH
-            generate_actions(window,3);
-            pet_bath(&p);
-            break;
-        case 5:
-            //HEALTH
-            toggle_stats();
+    app_log(0, "menu.c", 105, "Called select_menu()");
+    if (select_enabled == 1) {
+        app_log(0, "menu.c", 105, "Select_enabled changing to false.");
+        select_enabled = 0;
+        enable_menu_timer = app_timer_register(ONE_SECOND, enable_menu_callback, NULL);
+        switch (item_menu) {
+            case 0:
+                //PIZZA
+                pet_feed(&p);
+                generate_actions(window,0);
+                break;
+            case 1:
+                //BULB
+                // sleep / wakeup function called in toggle_lights
+                toggle_lights();
+                break;
+            case 2:
+                //PARK
+                toggle_game();
+                break;
+            case 3:
+                //PILL
+                pet_heal(&p);
+                generate_actions(window,1);
+                break;
+            case 4:
+                //BATH
+                generate_actions(window,3);
+                pet_bath(&p);
+                break;
+            case 5:
+                //HEALTH
+                toggle_stats();
 
-            break;
-        case 6:
-            //DISCIPLINE
-            generate_actions(window,2);
-            pet_discipline(&p);
-            break;
-        case 7:
-            //CALL
-            generate_static_actions(window); //im just using this button for an example
-            break;
-        default:
-            app_log(0, "menu.c", 103, "Switch case in select_menu() does not exist.");
-            break;
+                break;
+            case 6:
+                //DISCIPLINE
+                generate_actions(window,2);
+                pet_discipline(&p);
+                break;
+            case 7:
+                //CALL
+                generate_static_actions(window); //im just using this button for an example
+                break;
+            default:
+                app_log(0, "menu.c", 103, "Switch case in select_menu() does not exist.");
+                break;
 
+        }
     }
 }
 

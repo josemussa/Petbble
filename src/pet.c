@@ -3,10 +3,11 @@
 
 #define MAX_STAT 4
 
-#define MS_IN_DAY   86400000
-#define ONE_SECOND  1000
+#define ONE_SECOND  1
 #define ONE_MINUTE  (ONE_SECOND * 60)
 #define ONE_HOUR    (ONE_MINUTE * 60)
+#define ONE_DAY     (ONE_HOUR * 24)
+
 
 int pet_load_state(Pet *p) {
     for (int i = 0; i < NUM_PET_FIELDS; i++) {
@@ -157,8 +158,8 @@ void pet_discipline(Pet *p) {
 
 // Tamogatch starts at age 1.  Ages at 1 year per day.
 int pet_calculate_age(Pet *p) {
-    int time_ms = time(NULL) - p->fields[TOTAL_AGE_KEY];
-    return 1 + time_ms / MS_IN_DAY;
+    int time_second = time(NULL) - p->fields[TOTAL_AGE_KEY];
+    return 1 + time_second / ONE_DAY;
 }
 
 static void update_stats(Pet *p, int i) {
@@ -194,14 +195,14 @@ int pet_check_status(Pet *p) {
     int modify = 0;
     switch (p->fields[CURRENT_STAGE_KEY]) {
         case EGG_STAGE:
-            if (time(NULL) - p->fields[CURRENT_STAGE_AGE_KEY] < ONE_MINUTE) {
+            if (time(NULL) - p->fields[CURRENT_STAGE_AGE_KEY] < ONE_SECOND * 10) {
                 break;
             }
             p->fields[CURRENT_STAGE_KEY] = BABITCHI_STAGE;
-            p->fields[HEALTH_KEY] = 3;
+            p->fields[HEALTH_KEY] = 4;
             p->fields[HAPPINESS_KEY] = 3;
             p->fields[HUNGER_KEY] = 3;
-            p->fields[DISCIPLINE_KEY] = 1;
+            p->fields[DISCIPLINE_KEY] = 2;
             // WEIGHT purposefully not touched.
             p->fields[CURRENT_STAGE_AGE_KEY] = time(NULL);
             modify = 1;
@@ -210,7 +211,7 @@ int pet_check_status(Pet *p) {
             update_stats(p, 10);
             for (int i = 0; i < NUM_PET_FIELDS; i++) {
                 // If one of the stats required to evolve is not maximum, then return.
-                if ((time(NULL) - p->fields[CURRENT_STAGE_AGE_KEY] < ONE_HOUR * 24) || 
+                if ((time(NULL) - p->fields[CURRENT_STAGE_AGE_KEY] < ONE_DAY) || 
                    (counting_stat(i) && (p->fields[i] < MAX_STAT)) ||
                     p->fields[SICK_KEY]) {
                     break;
