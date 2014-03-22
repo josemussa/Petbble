@@ -156,43 +156,104 @@ static void deallocate_actions_sprite() {
     }
 }
 
-static void generatePet(int current_stage) {
+static void generatePet(int current_stage, int frame) {
+    app_log(0, "graphics.c", 46, "GeneratePet called with stage %d, frame %d", current_stage, frame);
     switch (current_stage) {
         case EGG_STAGE:
-        	pet_sprites[EGG_STAGE][0] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_EGG1);
-        	pet_sprites[EGG_STAGE][1] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_EGG2);
-        	pet_sprites[EGG_STAGE][2] = NULL;
+            switch (frame) {
+                case 0:
+                    pet_sprites[EGG_STAGE][0] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_EGG1);
+                    break;
+                case 1:
+                    pet_sprites[EGG_STAGE][1] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_EGG2);
+                    break;
+                case 2:
+                    pet_sprites[EGG_STAGE][2] = NULL;
+                    break;
+            }
             break;
         case BABITCHI_STAGE:
             // BABITCHI
-            pet_sprites[BABITCHI_STAGE][0] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_BABITCHI1);
-            pet_sprites[BABITCHI_STAGE][1] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_BABITCHI2);
-            pet_sprites[BABITCHI_STAGE][2] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_BABITCHI3);
-            pet_sprites[BABITCHI_STAGE][3] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_BABITCHI4);
-            pet_sprites[BABITCHI_STAGE][4] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_BABITCHI5);
-            pet_sprites[BABITCHI_STAGE][5] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_BABITCHI6);
-            pet_sprites[BABITCHI_STAGE][6] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_BABITCHI7);
-            pet_sprites[BABITCHI_STAGE][7] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_BABITCHI8);
-            pet_sprites[BABITCHI_STAGE][8] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_BABITCHI9);
-            pet_sprites[BABITCHI_STAGE][9] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_BABITCHI10);
-            pet_sprites[BABITCHI_STAGE][10] = NULL;
+            switch (frame) {
+                case 0:
+                    pet_sprites[BABITCHI_STAGE][0] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_BABITCHI1);
+                    break;
+                case 1:
+                    pet_sprites[BABITCHI_STAGE][1] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_BABITCHI2);
+                    break;
+                case 2:
+                    pet_sprites[BABITCHI_STAGE][2] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_BABITCHI3);
+                    break;
+                case 3:
+                    pet_sprites[BABITCHI_STAGE][3] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_BABITCHI4);
+                    break;
+                case 4:
+                    pet_sprites[BABITCHI_STAGE][4] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_BABITCHI5);
+                    break;
+                case 5:
+                    pet_sprites[BABITCHI_STAGE][5] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_BABITCHI6);
+                    break;
+                case 6: 
+                    pet_sprites[BABITCHI_STAGE][6] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_BABITCHI7);
+                    break;
+                case 7:
+                    pet_sprites[BABITCHI_STAGE][7] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_BABITCHI8);
+                    break;
+                case 8:
+                    pet_sprites[BABITCHI_STAGE][8] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_BABITCHI9);
+                    break;
+                case 9:
+                    pet_sprites[BABITCHI_STAGE][9] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_BABITCHI10);
+                    break;
+                case 10:
+                    pet_sprites[BABITCHI_STAGE][10] = NULL;
+                    break;
+                }
             break;
         case KUCHIT_STAGE:
             // KUCHIT
-            pet_sprites[KUCHIT_STAGE][0] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_KUCHIT1);
-            pet_sprites[KUCHIT_STAGE][1] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_KUCHIT2);
-            pet_sprites[KUCHIT_STAGE][2] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_KUCHIT3);
-            pet_sprites[KUCHIT_STAGE][3] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_KUCHIT4);
-            pet_sprites[KUCHIT_STAGE][4] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_KUCHIT5);
-            pet_sprites[KUCHIT_STAGE][5] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_KUCHIT6);
-            pet_sprites[KUCHIT_STAGE][6] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_KUCHIT7);
-            pet_sprites[KUCHIT_STAGE][7] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_KUCHIT8);
-            pet_sprites[KUCHIT_STAGE][8] = NULL;
+            switch (frame) {
+                case 0:
+                    pet_sprites[KUCHIT_STAGE][0] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_KUCHIT1);
+                    break;
+                case 1:
+                    pet_sprites[KUCHIT_STAGE][1] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_KUCHIT2);
+                    break;
+                case 2:
+                    pet_sprites[KUCHIT_STAGE][2] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_KUCHIT3);
+                    break;
+                case 3:
+                    pet_sprites[KUCHIT_STAGE][3] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_KUCHIT4);
+                    break;
+                case 4:
+                    pet_sprites[KUCHIT_STAGE][4] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_KUCHIT5);
+                    break;
+                case 5:
+                    pet_sprites[KUCHIT_STAGE][5] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_KUCHIT6);
+                    break;
+                case 6:
+                    pet_sprites[KUCHIT_STAGE][6] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_KUCHIT7);
+                    break;
+                case 7:
+                    pet_sprites[KUCHIT_STAGE][7] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_KUCHIT8);
+                    break;
+                case 8:
+                    pet_sprites[KUCHIT_STAGE][8] = NULL;
+                    break;
+            }
             break;
         case RETURN_STAGE:
-            pet_sprites[RETURN_STAGE][0] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_RETURN1);
-    		pet_sprites[RETURN_STAGE][1] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_RETURN2);
-    		pet_sprites[RETURN_STAGE][2] = NULL;
+            switch (frame) {
+                case 0:
+                    pet_sprites[RETURN_STAGE][0] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_RETURN1);
+                    break;
+    		    case 1:
+                    pet_sprites[RETURN_STAGE][1] = gbitmap_create_with_resource_safe(RESOURCE_ID_IMAGE_RETURN2);
+                    break;
+    		    case 2:
+                    pet_sprites[RETURN_STAGE][2] = NULL;
+                    break;
+            }
     		break;
         default:
             break;
@@ -322,7 +383,7 @@ void graphics_generate_pet_scene(Window *window, Pet *pet) {
     p = pet;
     
     // This needs to be deinited on app exit which is when the event loop ends
-    generatePet(p->fields[CURRENT_STAGE_KEY]);
+    generatePet(p->fields[CURRENT_STAGE_KEY], animationCounter);
     generate_icons(window);
     
     // CREATE PET
@@ -362,12 +423,17 @@ void graphics_destroy_pet_scene() {
 }
 
 static void animate_pet_timer_callback(void *data) {
+    app_log(0, "graphics.c", 46, "Inside of animate_pet_timer_callback. animationcounter: %d", animationCounter);
     animationCounter += 1;
 	int level = p->fields[CURRENT_STAGE_KEY];
+    gbitmap_destroy_safe(pet_sprites[level][animationCounter - 1]);
+    generatePet(level, animationCounter);
 	if (pet_sprites[level][animationCounter] == NULL) {
 		animationCounter = 0;
+        generatePet(level, animationCounter);
 	}
 	bitmap_layer_set_bitmap(pet_layer, pet_sprites[level][animationCounter]);
+    layer_mark_dirty(bitmap_layer_get_layer(pet_layer));
     pet_animation_timer = app_timer_register(800, animate_pet_timer_callback, NULL);
 }
 
