@@ -57,9 +57,9 @@ void graphics_generate_stats_scene2(Window *w, Pet *p) {
 		weight = malloc(10);		// This is really hacky and I don't like this solution, but I am getting really weird behavior when trying
 									// to free strings that were used in text layers.
 	}
-	snprintf(weight, weight_int % 10 + 1, "%d", weight_int);
+	snprintf(weight, weight_int / 10 + 1, "%d", weight_int);
 
-	weight[weight_int % 10 + 1] = '\0';
+	weight[weight_int / 10] = '\0';
 
 	init_text("Weight", 2);
 	init_text(weight, 3);
@@ -69,8 +69,8 @@ void graphics_generate_stats_scene2(Window *w, Pet *p) {
 		// age = malloc(age_in_years % 10 + 1);
 		age = malloc(10);
 	}
-	snprintf(age, age_in_years % 10 + 1, "%d", age_in_years);
-	age[age_in_years % 10 + 1] = '\0';
+	snprintf(age, age_in_years / 10 + 1, "%d", age_in_years);
+	age[age_in_years / 10] = '\0';
 
 	init_text("Age", 4);
 	init_text(age, 5);
