@@ -118,6 +118,7 @@ void pet_play(Pet *p, int score) {
     }
     for (int i = 0; i < score / 10; i++) {
         increment_stat(p, HAPPINESS_KEY);
+        increment_stat(p, HEALTH_KEY);
     }
 }
 
@@ -218,7 +219,7 @@ int pet_check_status(Pet *p) {
                 }
             }
             // If all stats are max, then we can evolve.
-            p->fields[CURRENT_STAGE_KEY] = MARUTCHI_STAGE;
+            p->fields[CURRENT_STAGE_KEY] = KUCHIT_STAGE;
             p->fields[HEALTH_KEY] = 3;
             p->fields[HAPPINESS_KEY] = 2;
             p->fields[HUNGER_KEY] = 1;
@@ -226,6 +227,18 @@ int pet_check_status(Pet *p) {
             p->fields[WEIGHT_KEY] += 5;
             p->fields[CURRENT_STAGE_AGE_KEY] = time(NULL);
             modify = 1;
+            break;
+        case KUCHIT_STAGE:
+            update_stats(p, 10);
+            for (int i = 0; i < NUM_PET_FIELDS; i++) {
+                // If one of the stats required to evolve is not maximum, then return.
+                if ((time(NULL) - p->fields[CURRENT_STAGE_AGE_KEY] < 2 * ONE_DAY) || 
+                   (counting_stat(i) && (p->fields[i] < MAX_STAT)) ||
+                    p->fields[SICK_KEY]) {
+                    break;
+                }
+            }
+            p->fields[CURRENT_STAGE_KEY] = RETURN_STAGE;
             break;
     }
     return modify;
